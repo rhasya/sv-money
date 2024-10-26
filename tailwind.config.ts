@@ -13,7 +13,8 @@ export default {
 				'secondary-fg': colors.black
 			},
 			fontFamily: {
-				sans: ['Noto Sans KR', 'sans-serif']
+				sans: ['Noto Sans KR', 'sans-serif'],
+				logo: 'Newsreader'
 			}
 		}
 	},
