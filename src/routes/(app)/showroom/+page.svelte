@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { useDialog } from '$lib/utils/dialog.svelte';
+	import { useDialog } from '$lib/common/dialog.svelte';
 
 	import Button from '@components/Button.svelte';
 	import Dialog from '@components/Dialog.svelte';
@@ -59,12 +59,12 @@
 		</div>
 	</ShowroomGroup>
 </div>
-<Dialog open={isOpen}>
+<Dialog open={isOpen} {onclose}>
 	<div>
 		<Label>Username<TextField bind:value={name} /></Label>
 	</div>
 	<div class="flex justify-end gap-2">
 		<Button onclick={handleOkClick}>확인</Button>
-		<Button variant="secondary" onclick={close} {onclose}>닫기</Button>
+		<Button variant="secondary" onclick={close}>닫기</Button>
 	</div>
 </Dialog>
