@@ -1,13 +1,24 @@
 <script lang="ts">
+	import { useDialog } from '$lib/utils/dialog.svelte';
+
 	import Button from '@components/Button.svelte';
+	import Dialog from '@components/Dialog.svelte';
+	import Dropdown from '@components/Dropdown.svelte';
 	import Label from '@components/Label.svelte';
 	import TextField from '@components/TextField.svelte';
+
 	import ShowroomGroup from './ShowroomGroup.svelte';
-	import Dialog from '@components/Dialog.svelte';
-	import { useDialog } from '../../utils/dialog.svelte';
+
+	const items = [
+		{ text: 'Item1 Text', value: 'Item1' },
+		{ text: 'Item2 Text', value: 'Item2' },
+		{ text: 'Item3 Text', value: 'Item3' }
+	];
 
 	let { isOpen, open, close, onclose } = $derived.by(useDialog);
 	let name = $state('');
+	let dropdownValue = $state('');
+
 	function handleOkClick() {
 		alert(name);
 		name = '';
@@ -33,6 +44,14 @@
 				<div>
 					<Label>Password<TextField type="password" /></Label>
 				</div>
+			</div>
+		</ShowroomGroup>
+		<ShowroomGroup title="드롭다운">
+			<div class="flex w-[480px] flex-row gap-2">
+				<div class="grow">
+					<Dropdown {items} bind:value={dropdownValue} />
+				</div>
+				<p>{dropdownValue}</p>
 			</div>
 		</ShowroomGroup>
 		<ShowroomGroup title="모달 다이얼로그">
