@@ -6,5 +6,8 @@ export const user = sqliteTable('user', {
 });
 
 export const account = sqliteTable('account', {
-	id: integer('id').primaryKey({ autoIncrement: true })
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	name: text('name').unique(),
+	type: text('type').notNull(),
+	category: text('category')
 });
