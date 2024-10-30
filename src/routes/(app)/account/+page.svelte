@@ -1,6 +1,8 @@
 <script lang="ts">
+	import clsx from 'clsx';
+
 	import { applyAction, enhance } from '$app/forms';
-	import { invalidateAll } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { accountTypes, categories } from '$lib/common/consts';
 	import { useDialog } from '$lib/common/dialog.svelte';
 	import Button from '@components/Button.svelte';
@@ -9,7 +11,6 @@
 	import Label from '@components/Label.svelte';
 	import PageTitle from '@components/PageTitle.svelte';
 	import TextField from '@components/TextField.svelte';
-	import clsx from 'clsx';
 
 	const { data, form } = $props();
 
@@ -55,6 +56,10 @@
 			invalidateAll();
 		}
 	}
+
+	function handleAccountDblClick(row: Account) {
+		goto(`/transaction/${row.id}`);
+	}
 </script>
 
 {#snippet table(type: string, rows: typeof items)}
@@ -68,6 +73,7 @@
 						selected?.id === row.id && 'bg-primary text-primary-fg'
 					)}
 					onclick={handleAccountClick.bind(null, row)}
+					ondblclick={handleAccountDblClick.bind(null, row)}
 				>
 					<td class="w-[140px] px-1 py-1">{row.name}</td>
 					<td class="w-[140px] px-1 py-1">{row.category}</td>
