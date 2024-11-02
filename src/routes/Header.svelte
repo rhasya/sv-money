@@ -5,6 +5,7 @@
 		</div>
 		<menu class="flex gap-4 text-white">
 			<li><a href="/account">Account</a></li>
+			<li><a href="/transaction">Transaction</a></li>
 			<li><a href="/showroom">Showroom</a></li>
 		</menu>
 	</div>

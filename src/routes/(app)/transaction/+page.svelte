@@ -17,15 +17,21 @@
 		.refine((arg) => arg.leftAccountId != arg.rightAccountId, 'Left and Right must different.');
 
 	const { data } = $props();
-	let trs: Partial<(typeof data.transactions)[number]>[] = $state(data.transactions);
+	let trs: Partial<(typeof data.transactions)[number]>[] = $state([]);
 	let firstInputRef: HTMLInputElement;
 
+	$effect(() => {
+		trs = data.transactions;
+	});
+
 	function handleAddClick() {
+		const lastDate = format(trs[trs.length - 1]?.tdate ?? new Date(), 'yyyy-MM-dd');
+
 		// ADD행이 없다면 추가
 		if (!trs.some((t) => t.state === 'ADD')) {
 			trs.push({
 				id: new Date().getTime(),
-				tdate: format(new Date(), 'yyyy-MM-dd'),
+				tdate: lastDate,
 				title: '',
 				state: 'ADD'
 			});
@@ -55,7 +61,7 @@
 	}
 </script>
 
-<PageTitle>Transactions - 우리은행</PageTitle>
+<PageTitle>Transactions</PageTitle>
 <div class="mt-4 flex gap-2">
 	<Button onclick={handleAddClick}>추가</Button>
 	<Button variant="secondary">수정</Button>
@@ -75,7 +81,7 @@
 	<tbody>
 		{#each trs as transaction (transaction.id)}
 			{#if transaction.state === 'ADD'}
-				<tr>
+				<tr class="border-y border-primary">
 					<td class="h-9 p-0.5"
 						><input
 							type="date"
@@ -91,15 +97,15 @@
 						><select class="h-full w-full px-1" bind:value={transaction.leftAccountId}>
 							<option></option>
 							{#each data.leftAccounts as la (la.id)}
-								<option>{la.name}</option>
+								<option value={la.id}>{la.name}</option>
 							{/each}
 						</select></td
 					>
 					<td class="h-9 p-0.5"
 						><select class="h-full w-full px-1" bind:value={transaction.rightAccountId}>
 							<option></option>
-							{#each data.rightAccounts as la (la.id)}
-								<option>{la.name}</option>
+							{#each data.rightAccounts as ra (ra.id)}
+								<option value={ra.id}>{ra.name}</option>
 							{/each}
 						</select></td
 					>
@@ -118,8 +124,8 @@
 					</td>
 				</tr>
 			{:else}
-				<tr>
-					<td class="h-9 align-middle">{transaction.tdate}</td>
+				<tr class="border-y border-primary">
+					<td class="h-9 align-middle">{format(transaction.tdate!, 'yyyy-MM-dd')}</td>
 					<td>{transaction.title}</td>
 					<td>{transaction.leftAccountId}</td>
 					<td>{transaction.rightAccountId}</td>

@@ -1,10 +1,8 @@
 import { getAccounts } from '$lib/server/service/accountService.js';
 import { getTransactions } from '$lib/server/service/transactionService.js';
 
-export async function load({ params }) {
-	const { id } = params;
-
-	const transactions = await getTransactions(parseInt(id));
+export async function load() {
+	const transactions = await getTransactions();
 	const tWithState = transactions.map((t) => ({ ...t, state: 'NORMAL' }));
 
 	const accounts = await getAccounts();
