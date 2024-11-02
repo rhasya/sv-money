@@ -18,11 +18,11 @@
 
 	type Account = (typeof items)[number];
 
-	const capital = $derived(items.filter((i) => i.type === '자본'));
-	const asset = $derived(items.filter((i) => i.type === '자산'));
-	const debt = $derived(items.filter((i) => i.type === '부채'));
-	const incoming = $derived(items.filter((i) => i.type === '수입'));
-	const spending = $derived(items.filter((i) => i.type === '지출'));
+	const capital = $derived(items.filter((i) => i.typeId === 1));
+	const asset = $derived(items.filter((i) => i.typeId === 2));
+	const debt = $derived(items.filter((i) => i.typeId === 3));
+	const incoming = $derived(items.filter((i) => i.typeId === 4));
+	const spending = $derived(items.filter((i) => i.typeId === 5));
 
 	let selected: Account | null = $state(null);
 	const { isOpen, open, close, onclose } = $derived.by(useDialog);
@@ -91,31 +91,32 @@
 </div>
 
 <div class="mt-1">
-	{@render table('자본', capital)}
+	{@render table(accountTypes[0].text, capital)}
 </div>
 
 <div class="mt-1">
-	{@render table('자산', asset)}
+	{@render table(accountTypes[1].text, asset)}
 </div>
 
 <div class="mt-1">
-	{@render table('부채', debt)}
+	{@render table(accountTypes[2].text, debt)}
 </div>
 
 <div class="mt-1">
-	{@render table('수입', incoming)}
+	{@render table(accountTypes[3].text, incoming)}
 </div>
 
 <div class="mt-1">
-	{@render table('지출', spending)}
+	{@render table(accountTypes[4].text, spending)}
 </div>
 
 <Dialog open={isOpen} title="Add Account" {onclose}>
 	<form
 		method="POST"
-		use:enhance={() => {
+		use:enhance={({ formElement }) => {
 			return ({ result }) => {
 				if (result.type === 'success') {
+					formElement?.reset();
 					invalidateAll();
 					close();
 				}
@@ -128,7 +129,12 @@
 				<Label>Title <TextField placeholder="Name" name="name" /></Label>
 			</div>
 			<div>
-				<Label>Type <Dropdown items={accountTypes} name="type" /></Label>
+				<Label
+					>Type <Dropdown
+						items={accountTypes.map((a) => ({ value: `${a.id}`, text: a.text }))}
+						name="typeId"
+					/></Label
+				>
 			</div>
 			<div>
 				<Label>Type <Dropdown items={categories} name="category" /></Label>

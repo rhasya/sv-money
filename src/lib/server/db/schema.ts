@@ -9,14 +9,14 @@ export const user = sqliteTable('user', {
 export const account = sqliteTable('account', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
 	name: text('name').unique(),
-	type: text('type').notNull(),
+	typeId: integer('type_id').notNull(),
 	category: text('category')
 });
 
 export const transaction = sqliteTable('transaction', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
 	tdate: text('tdate'),
-	title: text('name'),
+	title: text('title'),
 	leftAccountId: integer('left_account_id')
 		.notNull()
 		.references(() => account.id),

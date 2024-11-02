@@ -1,8 +1,9 @@
 export const accountTypes = [
-	{ text: '자산', value: '자산' },
-	{ text: '부채', value: '부채' },
-	{ text: '수입', value: '수입' },
-	{ text: '지출', value: '지출' }
+	{ id: 1, text: '자본' },
+	{ id: 2, text: '자산' },
+	{ id: 3, text: '부채' },
+	{ id: 4, text: '수익' },
+	{ id: 5, text: '비용' }
 ];
 
 export const categories = [

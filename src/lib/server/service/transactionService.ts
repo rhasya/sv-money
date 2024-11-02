@@ -1,10 +1,14 @@
-import { eq } from 'drizzle-orm';
+import { eq, or } from 'drizzle-orm';
 import { db } from '../db';
 import { transaction } from '../db/schema';
 
 export async function getTransactions(id: number) {
-	// LEFT
-	const left = await db.select().from(transaction).where(eq(transaction.leftAccountId, id));
-	// RIGHT
-	const right = await db.select().from(transaction).where(eq(transaction.rightAccountId, id));
+	return db
+		.select()
+		.from(transaction)
+		.where(or(eq(transaction.leftAccountId, id), eq(transaction.rightAccountId, id)));
+}
+
+export async function createTransaction(t: typeof transaction.$inferInsert) {
+	await db.insert(transaction).values(t);
 }

@@ -1,43 +1,150 @@
 <script lang="ts">
+	import { invalidateAll } from '$app/navigation';
 	import Button from '@components/Button.svelte';
 	import PageTitle from '@components/PageTitle.svelte';
+	import { format } from 'date-fns';
+	import { Ban, Pencil, Save } from 'lucide-svelte';
+	import { z } from 'zod';
+
+	const trValid = z
+		.object({
+			tdate: z.coerce.date(),
+			title: z.string().min(1),
+			leftAccountId: z.coerce.number(),
+			rightAccountId: z.coerce.number(),
+			amount: z.coerce.number()
+		})
+		.refine((arg) => arg.leftAccountId != arg.rightAccountId, 'Left and Right must different.');
 
 	const { data } = $props();
+	let trs: Partial<(typeof data.transactions)[number]>[] = $state(data.transactions);
+	let firstInputRef: HTMLInputElement;
+
+	function handleAddClick() {
+		// ADD행이 없다면 추가
+		if (!trs.some((t) => t.state === 'ADD')) {
+			trs.push({
+				id: new Date().getTime(),
+				tdate: format(new Date(), 'yyyy-MM-dd'),
+				title: '',
+				state: 'ADD'
+			});
+		}
+		setTimeout(() => firstInputRef.focus(), 100);
+	}
+
+	async function handleNewSaveClick() {
+		const { data: newTr, error } = trValid.safeParse(trs.filter((t) => t.state === 'ADD')[0]);
+		if (!error) {
+			await fetch('/api/transaction', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(newTr)
+			});
+
+			invalidateAll();
+		} else {
+			console.error(error);
+		}
+	}
+
+	function handleCancelClick() {
+		trs.splice(-1, 1);
+	}
 </script>
 
 <PageTitle>Transactions - 우리은행</PageTitle>
 <div class="mt-4 flex gap-2">
-	<Button>추가</Button>
+	<Button onclick={handleAddClick}>추가</Button>
 	<Button variant="secondary">수정</Button>
 	<Button variant="secondary">삭제</Button>
 </div>
 <table class="mt-4 w-full table-fixed border-collapse">
 	<thead>
 		<tr class="border-y border-primary">
-			<th class="w-[96px] p-1">Date</th>
+			<th class="h-9 w-[120px]">Date</th>
 			<th>Title</th>
-			<th class="w-[100px]">Account</th>
-			<th class="w-[100px]">Income</th>
-			<th class="w-[100px]">Outgo</th>
+			<th class="w-[140px]">Left</th>
+			<th class="w-[140px]">Right</th>
+			<th class="w-[100px]">Amount</th>
+			<th class="w-[80px]">A</th>
 		</tr>
 	</thead>
 	<tbody>
-		<tr class="border-y border-primary">
-			<td class="p-1 text-center">2024-11-01</td>
-			<td class="overflow-hidden text-ellipsis whitespace-nowrap" title="음">음</td>
-			<td
-				class="overflow-hidden text-ellipsis whitespace-nowrap"
-				title="토스뱅크보다긴 문자열 입니다.">토스뱅크보다긴 문자열 입니다.</td
-			>
-			<td class="text-right">100,000,000</td>
-			<td class="text-right">100,000,000</td>
-		</tr>
+		{#each trs as transaction (transaction.id)}
+			{#if transaction.state === 'ADD'}
+				<tr>
+					<td class="h-9 p-0.5"
+						><input
+							type="date"
+							class="h-full w-full px-1"
+							bind:value={transaction.tdate}
+							bind:this={firstInputRef}
+						/></td
+					>
+					<td class="h-9 p-0.5"
+						><input type="text" class="h-full w-full px-1" bind:value={transaction.title} /></td
+					>
+					<td class="h-9 p-0.5"
+						><select class="h-full w-full px-1" bind:value={transaction.leftAccountId}>
+							<option></option>
+							{#each data.leftAccounts as la (la.id)}
+								<option>{la.name}</option>
+							{/each}
+						</select></td
+					>
+					<td class="h-9 p-0.5"
+						><select class="h-full w-full px-1" bind:value={transaction.rightAccountId}>
+							<option></option>
+							{#each data.rightAccounts as la (la.id)}
+								<option>{la.name}</option>
+							{/each}
+						</select></td
+					>
+					<td class="h-9 p-0.5"
+						><input type="text" class="h-full w-full px-1" bind:value={transaction.amount} /></td
+					>
+					<td class="h-9 align-middle">
+						<div class="flex h-full w-full items-center justify-center">
+							<button type="button" class="icon-button" onclick={handleNewSaveClick}
+								><Save class="h-6 w-6" /></button
+							>
+							<button type="button" class="icon-button"
+								><Ban class="h-6 w-6" onclick={handleCancelClick} /></button
+							>
+						</div>
+					</td>
+				</tr>
+			{:else}
+				<tr>
+					<td class="h-9 align-middle">{transaction.tdate}</td>
+					<td>{transaction.title}</td>
+					<td>{transaction.leftAccountId}</td>
+					<td>{transaction.rightAccountId}</td>
+					<td>{transaction.amount}</td>
+					<td>
+						<div class="flex h-full w-full justify-center">
+							<button type="button"><Pencil class="h-6 w-6" /></button>
+						</div>
+					</td>
+				</tr>
+			{/if}
+		{/each}
 	</tbody>
 	<tfoot>
 		<tr class="border-y border-primary bg-primary text-primary-fg">
 			<th class="p-1 text-right" colspan={3}>SUM</th>
 			<th class="text-right">1000</th>
 			<th class="text-right">1000</th>
+			<th></th>
 		</tr>
 	</tfoot>
 </table>
+
+<style lang="postcss">
+	.icon-button {
+		@apply rounded p-0.5 transition-colors hover:bg-slate-200;
+	}
+</style>

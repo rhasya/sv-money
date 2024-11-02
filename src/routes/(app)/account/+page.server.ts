@@ -2,11 +2,11 @@ import { accountTypes } from '$lib/common/consts.js';
 import { createAccount, getAccounts } from '$lib/server/service/accountService';
 import { z } from 'zod';
 
-const acc = accountTypes.map((a) => a.value);
+const acc = accountTypes.map((a) => a.id);
 
 const accountValid = z.object({
 	name: z.string(),
-	type: z.string().refine((val) => acc.includes(val), { message: 'Account type error' }),
+	typeId: z.coerce.number().refine((val) => acc.includes(val), { message: 'Account type error' }),
 	category: z.union([z.enum(['은행', '신용카드']), z.string()])
 });
 
