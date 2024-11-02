@@ -11,6 +11,7 @@
 	import Label from '@components/Label.svelte';
 	import PageTitle from '@components/PageTitle.svelte';
 	import TextField from '@components/TextField.svelte';
+	import SimpleSelect from '@components/SimpleSelect.svelte';
 
 	const { data, form } = $props();
 
@@ -26,6 +27,14 @@
 
 	let selected: Account | null = $state(null);
 	const { isOpen, open, close, onclose } = $derived.by(useDialog);
+	let accountType = $state('');
+
+	const accountTypeItems = accountTypes.map((a) => ({ value: `${a.id}`, text: a.text }));
+	const categoriyItems = $derived(
+		categories
+			.filter((c) => `${c.parent}` === accountType)
+			.map((c) => ({ value: c.code, text: c.text }))
+	);
 
 	$effect(() => {
 		function handleDocumentClick(e: MouseEvent) {
@@ -58,7 +67,7 @@
 	}
 
 	function handleAccountDblClick(row: Account) {
-		goto(`/transaction/${row.id}`);
+		goto(`/transaction`);
 	}
 </script>
 
@@ -130,14 +139,22 @@
 			</div>
 			<div>
 				<Label
-					>Type <Dropdown
-						items={accountTypes.map((a) => ({ value: `${a.id}`, text: a.text }))}
+					>Type <SimpleSelect
+						class="bordered-select"
+						items={accountTypeItems}
 						name="typeId"
+						bind:value={accountType}
 					/></Label
 				>
 			</div>
 			<div>
-				<Label>Type <Dropdown items={categories} name="category" /></Label>
+				<Label
+					>Type <SimpleSelect
+						class="bordered-select"
+						items={categoriyItems}
+						name="category"
+					/></Label
+				>
 			</div>
 		</div>
 		<div>
@@ -149,3 +166,9 @@
 		</div>
 	</form>
 </Dialog>
+
+<style lang="postcss">
+	:global(.bordered-select) {
+		@apply h-8 w-full rounded border border-primary px-1 text-base font-normal;
+	}
+</style>

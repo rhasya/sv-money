@@ -1,6 +1,6 @@
 import { eq, or } from 'drizzle-orm';
 import { db } from '../db';
-import { transaction } from '../db/schema';
+import { transaction } from '../db/schema-pg';
 
 export async function getTransactions(id?: number) {
 	if (id) {

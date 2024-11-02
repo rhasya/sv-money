@@ -5,7 +5,7 @@
 	import { format } from 'date-fns';
 	import { Ban, Pencil, Save } from 'lucide-svelte';
 	import { z } from 'zod';
-	import SimpleSelect from './SimpleSelect.svelte';
+	import SimpleSelect from '../../../components/SimpleSelect.svelte';
 	import ErrorCard from './ErrorCard.svelte';
 
 	const trValid = z

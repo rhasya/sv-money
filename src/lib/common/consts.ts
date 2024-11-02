@@ -7,8 +7,8 @@ export const accountTypes = [
 ];
 
 export const categories = [
-	{ text: 'SELECT', value: '' },
-	{ text: '은행', value: '은행' },
-	{ text: '신용카드', value: '신용카드' },
-	{ text: '대출', value: '대출' }
+	{ code: 'CREDIT_CARD', text: '신용카드', parent: 3 },
+	{ code: 'DEBT', text: '대출', parent: 3 },
+	{ code: 'BANK', text: '은행', parent: 2 },
+	{ code: 'POINT', text: '포인트', parent: 2 }
 ];

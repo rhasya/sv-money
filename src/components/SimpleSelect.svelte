@@ -3,12 +3,19 @@
 		items: { value: string; text: string }[];
 		emptyLine?: boolean;
 		class?: string;
+		name?: string;
 		value?: string | number;
 	};
-	let { items, emptyLine = true, class: klass, value = $bindable() }: SimpleSelectProps = $props();
+	let {
+		items,
+		emptyLine = true,
+		name,
+		class: klass,
+		value = $bindable()
+	}: SimpleSelectProps = $props();
 </script>
 
-<select class={klass} bind:value>
+<select class={klass} {name} bind:value>
 	{#if emptyLine}
 		<option></option>
 	{/if}
