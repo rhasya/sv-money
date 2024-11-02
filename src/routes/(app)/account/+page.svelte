@@ -7,11 +7,10 @@
 	import { useDialog } from '$lib/common/dialog.svelte';
 	import Button from '@components/Button.svelte';
 	import Dialog from '@components/Dialog.svelte';
-	import Dropdown from '@components/Dropdown.svelte';
 	import Label from '@components/Label.svelte';
 	import PageTitle from '@components/PageTitle.svelte';
-	import TextField from '@components/TextField.svelte';
 	import SimpleSelect from '@components/SimpleSelect.svelte';
+	import TextField from '@components/TextField.svelte';
 
 	const { data, form } = $props();
 
@@ -149,7 +148,7 @@
 			</div>
 			<div>
 				<Label
-					>Type <SimpleSelect
+					>Category <SimpleSelect
 						class="bordered-select"
 						items={categoriyItems}
 						name="category"

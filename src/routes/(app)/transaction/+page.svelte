@@ -7,6 +7,7 @@
 	import { z } from 'zod';
 	import SimpleSelect from '../../../components/SimpleSelect.svelte';
 	import ErrorCard from './ErrorCard.svelte';
+	import { pl } from 'date-fns/locale';
 
 	const trValid = z
 		.object({
@@ -14,7 +15,11 @@
 			title: z.string().min(1),
 			leftAccountId: z.coerce.number(),
 			rightAccountId: z.coerce.number(),
-			amount: z.coerce.number()
+			amount: z
+				.string()
+				.transform((val) => val.replaceAll(',', ''))
+				.refine((val) => !isNaN(parseFloat(val)))
+				.transform((val) => parseFloat(val))
 		})
 		.refine((arg) => arg.leftAccountId != arg.rightAccountId, 'Left and Right must different.');
 
@@ -27,6 +32,24 @@
 	$effect(() => {
 		trs = data.transactions;
 	});
+
+	function getAccountText(
+		accounts: { id: number; name: string | null; typeId: number }[],
+		id: number,
+		left: boolean
+	) {
+		const account = accounts.filter((a) => a.id === id)[0];
+		const name = account?.name ?? '';
+		let plusMinus = '';
+		if (left) {
+			if (account.typeId === 2) plusMinus = '+';
+			else if (account.typeId === 1 || account.typeId === 3) plusMinus = '-';
+		} else {
+			if (account.typeId === 2) plusMinus = '-';
+			else if (account.typeId === 1 || account.typeId === 3) plusMinus = '+';
+		}
+		return `${name}[${plusMinus}]`;
+	}
 
 	function handleAddClick() {
 		// ADD행이 없다면 추가
@@ -124,10 +147,14 @@
 				</tr>
 			{:else}
 				<tr class="border-y border-primary">
-					<td class="normal-cell">{format(transaction.tdate!, 'yyyy-MM-dd')}</td>
+					<td class="normal-cell text-center">{format(transaction.tdate!, 'yyyy-MM-dd')}</td>
 					<td class="normal-cell">{transaction.title}</td>
-					<td class="normal-cell">{transaction.leftAccountId}</td>
-					<td class="normal-cell">{transaction.rightAccountId}</td>
+					<td class="normal-cell"
+						>{getAccountText(data.leftAccounts, transaction.leftAccountId!, true)}</td
+					>
+					<td class="normal-cell"
+						>{getAccountText(data.rightAccounts, transaction.rightAccountId!, false)}</td
+					>
 					<td class="normal-cell text-right">{transaction.amount}</td>
 					<td>
 						<div class="flex h-full w-full justify-center">
@@ -147,7 +174,7 @@
 	</tfoot>
 </table>
 {#if errorMsg}
-	<ErrorCard>{errorMsg}</ErrorCard>
+	<ErrorCard onclick={() => (errorMsg = null)}>{errorMsg}</ErrorCard>
 {/if}
 
 <style lang="postcss">
