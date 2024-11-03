@@ -5,19 +5,29 @@
 	import SimpleSelect from '@components/SimpleSelect.svelte';
 	import { format } from 'date-fns';
 	import { Ban, Pencil, Save } from 'lucide-svelte';
-	import { z } from 'zod';
+	import { z, ZodError } from 'zod';
 	import ErrorCard from './ErrorCard.svelte';
 	import { formatNumber } from '$lib/common/utils';
 
-	const trValid = z
-		.object({
-			tdate: z.coerce.date(),
-			title: z.string().min(1),
-			leftAccountId: z.coerce.number(),
-			rightAccountId: z.coerce.number(),
-			amount: z.preprocess((val) => (val as string).replaceAll(',', ''), z.coerce.number())
-		})
-		.refine((arg) => arg.leftAccountId != arg.rightAccountId, 'Left and Right must different.');
+	const trSchema = z.object({
+		tdate: z.coerce.date(),
+		title: z.string().min(1),
+		leftAccountId: z.coerce.number(),
+		rightAccountId: z.coerce.number(),
+		amount: z.preprocess((val) => `${val}`.replaceAll(',', ''), z.coerce.number())
+	});
+
+	const trValid = trSchema.refine((val) => val.leftAccountId != val.rightAccountId, {
+		message: 'Left and Right must different.',
+		path: ['rightAccountId']
+	});
+
+	const trAndIdValid = trSchema
+		.extend({ id: z.number() })
+		.refine((val) => val.leftAccountId != val.rightAccountId, {
+			message: 'Left and Right must different.',
+			path: ['rightAccountId']
+		});
 
 	const { data } = $props();
 	let trs: Partial<(typeof data.transactions)[number]>[] = $state([]);
@@ -61,26 +71,69 @@
 		setTimeout(() => firstInputRef.focus(), 100);
 	}
 
-	async function handleNewSaveClick() {
-		const { data: newTr, error } = trValid.safeParse(trs.filter((t) => t.state === 'ADD')[0]);
-		if (!error) {
-			lastAddedDate = format(newTr.tdate, 'yyyy-MM-dd');
-			await fetch('/api/transaction', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify(newTr)
-			});
-
-			invalidateAll();
-		} else {
-			errorMsg = error.errors[0].message;
+	function handleEditClick(id: number) {
+		if (!trs.some((t) => t.state === 'EDIT')) {
+			const idx = trs.findIndex((t) => t.id === id);
+			trs[idx].state = 'EDIT';
 		}
 	}
 
-	function handleCancelClick() {
-		trs.splice(-1, 1);
+	async function handleSaveClick(state: string) {
+		try {
+			if (state === 'ADD') {
+				const { data: newTr, error } = trValid.safeParse(trs.filter((t) => t.state === 'ADD')[0]);
+				if (!error) {
+					lastAddedDate = format(newTr.tdate, 'yyyy-MM-dd');
+					const res = await fetch('/api/transaction', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify(newTr)
+					});
+
+					if (!res.ok) {
+						throw new Error(res.statusText);
+					}
+
+					invalidateAll();
+				}
+			} else {
+				const { data: editTr, error } = trAndIdValid.safeParse(
+					trs.filter((t) => t.state === 'EDIT')[0]
+				);
+				if (!error) {
+					const res = await fetch(`/api/transaction/${editTr.id}`, {
+						method: 'PUT',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify(editTr)
+					});
+
+					if (!res.ok) {
+						throw new Error(res.statusText);
+					}
+
+					invalidateAll();
+				}
+			}
+		} catch (e) {
+			console.error('CATCH: ', e);
+			if (e instanceof ZodError) {
+				errorMsg = e.errors[0].message;
+			} else {
+				errorMsg = `${e}`;
+			}
+		}
+	}
+
+	function handleCancelClick(state: string) {
+		if (state === 'EDIT') {
+			invalidateAll();
+		} else {
+			trs.splice(-1, 1);
+		}
 	}
 </script>
 
@@ -101,7 +154,7 @@
 	</thead>
 	<tbody>
 		{#each trs as transaction (transaction.id)}
-			{#if transaction.state === 'ADD'}
+			{#if transaction.state === 'ADD' || transaction.state === 'EDIT'}
 				<tr class="border-y border-primary">
 					<td class="h-9 p-0.5"
 						><input
@@ -117,14 +170,14 @@
 					<td class="h-9 p-0.5">
 						<SimpleSelect
 							class="h-full w-full px-1"
-							items={data.leftAccounts.map((a) => ({ value: `${a.id}`, text: a.name! }))}
+							items={data.leftAccounts.map((a) => ({ value: a.id, text: a.name! }))}
 							bind:value={transaction.leftAccountId}
 						/>
 					</td>
 					<td class="h-9 p-0.5">
 						<SimpleSelect
 							class="h-full w-full px-1"
-							items={data.rightAccounts.map((a) => ({ value: `${a.id}`, text: a.name! }))}
+							items={data.rightAccounts.map((a) => ({ value: a.id, text: a.name! }))}
 							bind:value={transaction.rightAccountId}
 						/>
 					</td>
@@ -133,11 +186,18 @@
 					>
 					<td class="h-9 align-middle">
 						<div class="flex h-full w-full items-center justify-center">
-							<button type="button" class="icon-button" onclick={handleNewSaveClick}
-								><Save class="h-6 w-6" /></button
+							<button
+								type="button"
+								class="icon-button"
+								onclick={() => handleSaveClick(transaction.state!)}
 							>
+								<Save class="h-6 w-6" />
+							</button>
 							<button type="button" class="icon-button"
-								><Ban class="h-6 w-6" onclick={handleCancelClick} /></button
+								><Ban
+									class="h-6 w-6"
+									onclick={() => handleCancelClick(transaction.state!)}
+								/></button
 							>
 						</div>
 					</td>
@@ -155,7 +215,9 @@
 					<td class="normal-cell text-right">{formatNumber(transaction.amount ?? 0)}</td>
 					<td>
 						<div class="flex h-full w-full justify-center">
-							<button type="button"><Pencil class="h-6 w-6" /></button>
+							<button type="button" onclick={() => handleEditClick(transaction.id!)}
+								><Pencil class="h-6 w-6" /></button
+							>
 						</div>
 					</td>
 				</tr>

@@ -1,5 +1,4 @@
-import { sql } from 'drizzle-orm';
-import { integer, real, pgTable, text, serial, timestamp } from 'drizzle-orm/pg-core';
+import { date, integer, pgTable, real, serial, text, timestamp } from 'drizzle-orm/pg-core';
 
 export const account = pgTable('account', {
 	id: serial('id').primaryKey(),
@@ -11,7 +10,7 @@ export const account = pgTable('account', {
 
 export const transaction = pgTable('transaction', {
 	id: serial('id').primaryKey(),
-	tdate: text('tdate'),
+	tdate: date('tdate'),
 	title: text('title'),
 	leftAccountId: integer('left_account_id')
 		.notNull()
@@ -23,5 +22,5 @@ export const transaction = pgTable('transaction', {
 	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
 	modifiedAt: timestamp('modified_at', { withTimezone: true })
 		.defaultNow()
-		.$onUpdate(() => sql`(CURRENT_TIMESTAMP)`)
+		.$onUpdate(() => new Date())
 });

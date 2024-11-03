@@ -16,3 +16,16 @@ export async function getTransactions(id?: number) {
 export async function createTransaction(t: typeof transaction.$inferInsert) {
 	await db.insert(transaction).values(t);
 }
+
+export async function updateTransaction(t: typeof transaction.$inferInsert) {
+	await db
+		.update(transaction)
+		.set({
+			tdate: t.tdate,
+			title: t.title,
+			leftAccountId: t.leftAccountId,
+			rightAccountId: t.rightAccountId,
+			amount: t.amount
+		})
+		.where(eq(transaction.id, t.id!));
+}

@@ -22,7 +22,6 @@
 	const spending = $derived(items.filter((i) => i.typeId === 5));
 
 	let tableArea: HTMLDivElement;
-	let buttonArea: HTMLDivElement;
 
 	let selected: Account | null = $state(null);
 	const { isOpen, open, close, onclose } = $derived.by(useDialog);
@@ -31,7 +30,7 @@
 		function handleDocumentClick(e: MouseEvent) {
 			e.stopImmediatePropagation();
 			const el = e.target as HTMLElement;
-			if (!tableArea.contains(el) && !buttonArea.contains(el)) {
+			if (!tableArea.contains(el)) {
 				selected = null;
 			}
 		}
@@ -89,14 +88,15 @@
 {/snippet}
 
 <PageTitle>Accounts</PageTitle>
-<div class="mt-8 flex gap-2" bind:this={buttonArea}>
-	<Button onclick={handleAddClick}>ADD</Button>
-	<Button variant="secondary" onclick={handleUpdateClick} disabled={!selected}>MODIFY</Button>
-	<Button variant="warn" onclick={handleDeleteClick} disabled={!selected}>DELETE</Button>
-</div>
 
 <div class="table-area" bind:this={tableArea}>
-	<div class="mt-1">
+	<div class="mt-8 flex gap-2">
+		<Button onclick={handleAddClick}>ADD</Button>
+		<Button variant="secondary" onclick={handleUpdateClick} disabled={!selected}>MODIFY</Button>
+		<Button variant="warn" onclick={handleDeleteClick} disabled={!selected}>DELETE</Button>
+	</div>
+
+	<div class="mt-2">
 		{@render table(accountTypes[0].text, capital)}
 	</div>
 
@@ -124,8 +124,8 @@
 		data={{
 			id: selected?.id,
 			name: selected?.name!,
-			typeId: `${selected?.typeId}`,
-			category: selected?.category ?? '',
+			typeId: selected?.typeId,
+			category: selected?.category,
 			seq: selected?.seq
 		}}
 	/>

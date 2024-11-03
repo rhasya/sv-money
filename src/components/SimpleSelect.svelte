@@ -1,6 +1,6 @@
 <script lang="ts">
 	type SimpleSelectProps = {
-		items: { value: string; text: string }[];
+		items: { value: string | number; text: string }[];
 		emptyLine?: boolean;
 		class?: string;
 		name?: string;

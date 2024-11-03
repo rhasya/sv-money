@@ -11,12 +11,11 @@
 	const initialData: {
 		id?: number;
 		name: string | null;
-		typeId: string;
-		category: string;
+		typeId?: number;
+		category?: string | null;
 		seq?: number | null;
 	} = {
 		name: '',
-		typeId: '',
 		category: '',
 		seq: null
 	};
@@ -43,15 +42,15 @@
 		}
 	});
 
-	const accountTypeItems = accountTypes.map((a) => ({ value: `${a.id}`, text: a.text }));
+	const accountTypeItems = accountTypes.map((a) => ({ value: a.id, text: a.text }));
 	const categoriyItems = $derived(
 		categories
-			.filter((c) => `${c.parent}` === input.typeId)
+			.filter((c) => c.parent === input.typeId)
 			.map((c) => ({ value: c.code, text: c.text }))
 	);
 </script>
 
-<Dialog open={isOpen} title="Add Account" {onclose}>
+<Dialog open={isOpen} title="Add/Modify Account" {onclose}>
 	<form
 		method="POST"
 		use:enhance={({ formElement }) => {
@@ -65,8 +64,8 @@
 			};
 		}}
 	>
-		<input type="hidden" name="id" value={data?.id} />
 		<div class="flex h-[320px] flex-col gap-2">
+			<input type="hidden" name="id" value={data?.id} />
 			<div>
 				<Label>Title <TextField placeholder="Name" name="name" value={input.name} /></Label>
 			</div>
