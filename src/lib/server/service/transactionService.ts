@@ -1,16 +1,15 @@
-import { eq, or } from 'drizzle-orm';
+import { between, eq } from 'drizzle-orm';
 import { db } from '../db';
 import { transaction } from '../db/schema-pg';
 
-export async function getTransactions(id?: number) {
-	if (id) {
-		return await db
-			.select()
-			.from(transaction)
-			.where(or(eq(transaction.leftAccountId, id), eq(transaction.rightAccountId, id)));
-	} else {
+export async function getTransactions(fromDate: string | null, toDate: string | null) {
+	if (!fromDate || !toDate) {
 		return await db.select().from(transaction);
 	}
+	return await db
+		.select()
+		.from(transaction)
+		.where(between(transaction.tdate, fromDate, toDate));
 }
 
 export async function createTransaction(t: typeof transaction.$inferInsert) {

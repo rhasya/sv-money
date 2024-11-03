@@ -1,44 +1,74 @@
 <script lang="ts">
-	import { invalidateAll } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
+	import { formatNumber } from '$lib/common/utils';
 	import Button from '@components/Button.svelte';
+	import DateRangePicker from '@components/DateRangePicker.svelte';
 	import PageTitle from '@components/PageTitle.svelte';
 	import SimpleSelect from '@components/SimpleSelect.svelte';
 	import { format } from 'date-fns';
 	import { Ban, Pencil, Save } from 'lucide-svelte';
 	import { z, ZodError } from 'zod';
 	import ErrorCard from './ErrorCard.svelte';
-	import { formatNumber } from '$lib/common/utils';
 
-	const trSchema = z.object({
-		tdate: z.coerce.date(),
+	const createSchema = z.object({
+		tdate: z.string().date(),
 		title: z.string().min(1),
 		leftAccountId: z.coerce.number(),
 		rightAccountId: z.coerce.number(),
 		amount: z.preprocess((val) => `${val}`.replaceAll(',', ''), z.coerce.number())
 	});
 
-	const trValid = trSchema.refine((val) => val.leftAccountId != val.rightAccountId, {
-		message: 'Left and Right must different.',
-		path: ['rightAccountId']
-	});
+	const isSameAccount = (val: z.infer<typeof createSchema>) =>
+		val.leftAccountId != val.rightAccountId;
 
-	const trAndIdValid = trSchema
-		.extend({ id: z.number() })
-		.refine((val) => val.leftAccountId != val.rightAccountId, {
-			message: 'Left and Right must different.',
-			path: ['rightAccountId']
-		});
+	const createValidator = createSchema.refine(isSameAccount);
+	const updateValidator = createSchema.extend({ id: z.number() }).refine(isSameAccount);
 
 	const { data } = $props();
-	let trs: Partial<(typeof data.transactions)[number]>[] = $state([]);
+	let transactions: Partial<(typeof data.transactions)[number]>[] = $state([]);
 	let errorMsg: string | null = $state(null);
 	let lastAddedDate: string | null = $state(null);
+	let searchCond: { fromDate: string | null; toDate: string | null } = $state({
+		fromDate: data.fromDate,
+		toDate: data.toDate
+	});
+
 	// svelte-ignore non_reactive_update
 	let firstInputRef: HTMLInputElement;
+	let datePicker: ReturnType<typeof DateRangePicker>;
 
 	$effect(() => {
-		trs = data.transactions;
+		transactions = data.transactions;
 	});
+
+	async function create() {
+		const tr = createValidator.parse(transactions.filter((t) => t.state === 'ADD')[0]);
+		lastAddedDate = tr.tdate;
+		const res = await fetch('/api/transaction', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(tr)
+		});
+		if (!res.ok) {
+			throw new Error(res.statusText);
+		}
+	}
+
+	async function update() {
+		const tr = updateValidator.parse(transactions.filter((t) => t.state === 'EDIT')[0]);
+		const res = await fetch(`/api/transaction/${tr.id}`, {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(tr)
+		});
+		if (!res.ok) {
+			throw new Error(res.statusText);
+		}
+	}
 
 	function getAccountText(
 		accounts: { id: number; name: string | null; typeId: number }[],
@@ -49,77 +79,51 @@
 		const name = account?.name ?? '';
 		let plusMinus = '';
 		if (left) {
-			if (account.typeId === 2) plusMinus = '+';
-			else if (account.typeId === 1 || account.typeId === 3) plusMinus = '-';
+			if (account.typeId === 2) plusMinus = '[+]';
+			else if (account.typeId === 1 || account.typeId === 3) plusMinus = '[-]';
 		} else {
-			if (account.typeId === 2) plusMinus = '-';
-			else if (account.typeId === 1 || account.typeId === 3) plusMinus = '+';
+			if (account.typeId === 2) plusMinus = '[-]';
+			else if (account.typeId === 1 || account.typeId === 3) plusMinus = '[+]';
 		}
-		return `${name}[${plusMinus}]`;
+		return `${name}${plusMinus}`;
+	}
+
+	function handleSearchClick() {
+		if (datePicker.getValid()) {
+			goto(`/transaction?fromDate=${searchCond.fromDate}&toDate=${searchCond.toDate}`);
+		} else {
+			alert('Check search condition.');
+		}
 	}
 
 	function handleAddClick() {
-		// ADD행이 없다면 추가
-		if (!trs.some((t) => t.state === 'ADD')) {
-			trs.push({
+		if (!transactions.some((t) => t.state === 'ADD')) {
+			transactions.push({
 				id: new Date().getTime(),
 				tdate: lastAddedDate,
 				title: '',
 				state: 'ADD'
 			});
 		}
-		setTimeout(() => firstInputRef.focus(), 100);
+		setTimeout(() => firstInputRef?.focus(), 100);
 	}
 
 	function handleEditClick(id: number) {
-		if (!trs.some((t) => t.state === 'EDIT')) {
-			const idx = trs.findIndex((t) => t.id === id);
-			trs[idx].state = 'EDIT';
+		if (!transactions.some((t) => t.state === 'EDIT')) {
+			const idx = transactions.findIndex((t) => t.id === id);
+			transactions[idx].state = 'EDIT';
 		}
 	}
 
 	async function handleSaveClick(state: string) {
 		try {
 			if (state === 'ADD') {
-				const { data: newTr, error } = trValid.safeParse(trs.filter((t) => t.state === 'ADD')[0]);
-				if (!error) {
-					lastAddedDate = format(newTr.tdate, 'yyyy-MM-dd');
-					const res = await fetch('/api/transaction', {
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json'
-						},
-						body: JSON.stringify(newTr)
-					});
-
-					if (!res.ok) {
-						throw new Error(res.statusText);
-					}
-
-					invalidateAll();
-				}
+				create();
 			} else {
-				const { data: editTr, error } = trAndIdValid.safeParse(
-					trs.filter((t) => t.state === 'EDIT')[0]
-				);
-				if (!error) {
-					const res = await fetch(`/api/transaction/${editTr.id}`, {
-						method: 'PUT',
-						headers: {
-							'Content-Type': 'application/json'
-						},
-						body: JSON.stringify(editTr)
-					});
-
-					if (!res.ok) {
-						throw new Error(res.statusText);
-					}
-
-					invalidateAll();
-				}
+				update();
 			}
+			invalidateAll();
 		} catch (e) {
-			console.error('CATCH: ', e);
 			if (e instanceof ZodError) {
 				errorMsg = e.errors[0].message;
 			} else {
@@ -132,14 +136,26 @@
 		if (state === 'EDIT') {
 			invalidateAll();
 		} else {
-			trs.splice(-1, 1);
+			transactions.splice(-1, 1);
 		}
 	}
 </script>
 
 <PageTitle>Transactions</PageTitle>
-<div class="mt-4 flex justify-end gap-2">
-	<Button onclick={handleAddClick}>추가</Button>
+<div class="mt-4 flex justify-between gap-2">
+	<div class="flex gap-2">
+		<DateRangePicker
+			bind:fromDate={searchCond.fromDate}
+			bind:toDate={searchCond.toDate}
+			bind:this={datePicker}
+		/>
+		<Button onclick={handleSearchClick}>SEARCH</Button>
+		<Button variant="secondary">April</Button>
+		<Button variant="secondary">May</Button>
+	</div>
+	<div>
+		<Button onclick={handleAddClick}>CREATE</Button>
+	</div>
 </div>
 <table class="mt-4 w-full table-fixed border-collapse">
 	<thead>
@@ -153,7 +169,7 @@
 		</tr>
 	</thead>
 	<tbody>
-		{#each trs as transaction (transaction.id)}
+		{#each transactions as transaction (transaction.id)}
 			{#if transaction.state === 'ADD' || transaction.state === 'EDIT'}
 				<tr class="border-y border-primary">
 					<td class="h-9 p-0.5"
