@@ -7,6 +7,7 @@
 	import { Ban, Pencil, Save } from 'lucide-svelte';
 	import { z } from 'zod';
 	import ErrorCard from './ErrorCard.svelte';
+	import { formatNumber } from '$lib/common/utils';
 
 	const trValid = z
 		.object({
@@ -14,11 +15,7 @@
 			title: z.string().min(1),
 			leftAccountId: z.coerce.number(),
 			rightAccountId: z.coerce.number(),
-			amount: z
-				.string()
-				.transform((val) => val.replaceAll(',', ''))
-				.refine((val) => !isNaN(parseFloat(val)))
-				.transform((val) => parseFloat(val))
+			amount: z.preprocess((val) => (val as string).replaceAll(',', ''), z.coerce.number())
 		})
 		.refine((arg) => arg.leftAccountId != arg.rightAccountId, 'Left and Right must different.');
 
@@ -155,7 +152,7 @@
 					<td class="normal-cell"
 						>{getAccountText(data.rightAccounts, transaction.rightAccountId!, false)}</td
 					>
-					<td class="normal-cell text-right">{transaction.amount}</td>
+					<td class="normal-cell text-right">{formatNumber(transaction.amount ?? 0)}</td>
 					<td>
 						<div class="flex h-full w-full justify-center">
 							<button type="button"><Pencil class="h-6 w-6" /></button>
@@ -165,13 +162,15 @@
 			{/if}
 		{/each}
 	</tbody>
-	<tfoot>
-		<tr class="border-y border-primary bg-primary text-primary-fg">
-			<th class="p-1 text-right" colspan={4}>SUM</th>
-			<th class="text-right">1000</th>
-			<th></th>
-		</tr>
-	</tfoot>
+	{#if false}
+		<tfoot>
+			<tr class="border-y border-primary bg-primary text-primary-fg">
+				<th class="p-1 text-right" colspan={4}>SUM</th>
+				<th class="text-right">1000</th>
+				<th></th>
+			</tr>
+		</tfoot>
+	{/if}
 </table>
 {#if errorMsg}
 	<ErrorCard onclick={() => (errorMsg = null)}>{errorMsg}</ErrorCard>

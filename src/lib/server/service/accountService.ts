@@ -3,7 +3,7 @@ import { db } from '../db';
 import { account } from '../db/schema-pg';
 
 export async function getAccounts() {
-	return db.select().from(account).orderBy(asc(account.seq));
+	return db.select().from(account).orderBy(asc(account.typeId), asc(account.seq));
 }
 
 export async function createAccount(a: typeof account.$inferInsert) {

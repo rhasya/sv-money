@@ -1,9 +1,10 @@
 <script lang="ts">
 	import clsx from 'clsx';
 
-	import { goto, invalidateAll } from '$app/navigation';
+	import { invalidateAll } from '$app/navigation';
 	import { accountTypes } from '$lib/common/consts';
 	import { useDialog } from '$lib/common/dialog.svelte';
+	import { getCategoryName } from '$lib/common/utils';
 	import Button from '@components/Button.svelte';
 	import PageTitle from '@components/PageTitle.svelte';
 	import AccountDialog from './AccountDialog.svelte';
@@ -61,9 +62,7 @@
 		}
 	}
 
-	function handleAccountDblClick(row: Account) {
-		goto(`/transaction`);
-	}
+	function handleAccountDblClick(row: Account) {}
 </script>
 
 {#snippet table(type: string, rows: typeof items)}
@@ -80,7 +79,7 @@
 					ondblclick={handleAccountDblClick.bind(null, row)}
 				>
 					<td class="w-[140px] px-1 py-1">{row.name}</td>
-					<td class="w-[140px] px-1 py-1">{row.category}</td>
+					<td class="w-[140px] px-1 py-1">{getCategoryName(row.category)}</td>
 					<td class="w-[140px] px-1 py-1">{row.seq}</td>
 					<td></td>
 				</tr>
@@ -91,9 +90,9 @@
 
 <PageTitle>Accounts</PageTitle>
 <div class="mt-8 flex gap-2" bind:this={buttonArea}>
-	<Button onclick={handleAddClick}>추가</Button>
-	<Button variant="secondary" onclick={handleUpdateClick} disabled={!selected}>수정</Button>
-	<Button variant="secondary" onclick={handleDeleteClick} disabled={!selected}>삭제</Button>
+	<Button onclick={handleAddClick}>ADD</Button>
+	<Button variant="secondary" onclick={handleUpdateClick} disabled={!selected}>MODIFY</Button>
+	<Button variant="warn" onclick={handleDeleteClick} disabled={!selected}>DELETE</Button>
 </div>
 
 <div class="table-area" bind:this={tableArea}>
