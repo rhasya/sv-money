@@ -2,12 +2,11 @@
 	import { invalidateAll } from '$app/navigation';
 	import Button from '@components/Button.svelte';
 	import PageTitle from '@components/PageTitle.svelte';
+	import SimpleSelect from '@components/SimpleSelect.svelte';
 	import { format } from 'date-fns';
 	import { Ban, Pencil, Save } from 'lucide-svelte';
 	import { z } from 'zod';
-	import SimpleSelect from '../../../components/SimpleSelect.svelte';
 	import ErrorCard from './ErrorCard.svelte';
-	import { pl } from 'date-fns/locale';
 
 	const trValid = z
 		.object({
@@ -27,6 +26,7 @@
 	let trs: Partial<(typeof data.transactions)[number]>[] = $state([]);
 	let errorMsg: string | null = $state(null);
 	let lastAddedDate: string | null = $state(null);
+	// svelte-ignore non_reactive_update
 	let firstInputRef: HTMLInputElement;
 
 	$effect(() => {

@@ -5,7 +5,8 @@ export const account = pgTable('account', {
 	id: serial('id').primaryKey(),
 	name: text('name').unique(),
 	typeId: integer('type_id').notNull(),
-	category: text('category')
+	category: text('category'),
+	seq: integer('seq')
 });
 
 export const transaction = pgTable('transaction', {
