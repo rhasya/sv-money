@@ -5,10 +5,11 @@
 	import DateRangePicker from '@components/DateRangePicker.svelte';
 	import PageTitle from '@components/PageTitle.svelte';
 	import SimpleSelect from '@components/SimpleSelect.svelte';
-	import { format } from 'date-fns';
-	import { Ban, Pencil, Save } from 'lucide-svelte';
+	import { addMonths, format, startOfMonth, endOfMonth } from 'date-fns';
+	import { Ban, ChevronLeft, ChevronRight, Pencil, Save } from 'lucide-svelte';
 	import { z, ZodError } from 'zod';
 	import ErrorCard from './ErrorCard.svelte';
+	import MonthButtons from './MonthButtons.svelte';
 
 	const createSchema = z.object({
 		tdate: z.string().date(),
@@ -118,9 +119,9 @@
 	async function handleSaveClick(state: string) {
 		try {
 			if (state === 'ADD') {
-				create();
+				await create();
 			} else {
-				update();
+				await update();
 			}
 			invalidateAll();
 		} catch (e) {
@@ -139,19 +140,33 @@
 			transactions.splice(-1, 1);
 		}
 	}
+
+	function handleMonthMoveClick(move: number) {
+		if (searchCond.fromDate && searchCond.toDate) {
+			const targetMonth = addMonths(searchCond.fromDate, move);
+			searchCond.fromDate = format(startOfMonth(targetMonth), 'yyyy-MM-dd');
+			searchCond.toDate = format(endOfMonth(targetMonth), 'yyyy-MM-dd');
+			handleSearchClick();
+		}
+	}
 </script>
 
 <PageTitle>Transactions</PageTitle>
 <div class="mt-4 flex justify-between gap-2">
 	<div class="flex gap-2">
+		<button onclick={() => handleMonthMoveClick(-1)}><ChevronLeft /></button>
 		<DateRangePicker
 			bind:fromDate={searchCond.fromDate}
 			bind:toDate={searchCond.toDate}
 			bind:this={datePicker}
 		/>
+		<button onclick={() => handleMonthMoveClick(+1)}><ChevronRight /></button>
 		<Button onclick={handleSearchClick}>SEARCH</Button>
-		<Button variant="secondary">April</Button>
-		<Button variant="secondary">May</Button>
+		<MonthButtons
+			bind:fromDate={searchCond.fromDate}
+			bind:toDate={searchCond.toDate}
+			onclick={handleSearchClick}
+		/>
 	</div>
 	<div>
 		<Button onclick={handleAddClick}>CREATE</Button>

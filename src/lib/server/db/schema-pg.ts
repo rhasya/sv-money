@@ -19,6 +19,7 @@ export const transaction = pgTable('transaction', {
 		.notNull()
 		.references(() => account.id),
 	amount: real('amount').default(0),
+	seq: integer('seq'),
 	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
 	modifiedAt: timestamp('modified_at', { withTimezone: true })
 		.defaultNow()
