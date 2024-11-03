@@ -1,4 +1,4 @@
-import { between, eq } from 'drizzle-orm';
+import { asc, between, eq } from 'drizzle-orm';
 import { db } from '../db';
 import { transaction } from '../db/schema-pg';
 
@@ -9,7 +9,8 @@ export async function getTransactions(fromDate: string | null, toDate: string | 
 	return await db
 		.select()
 		.from(transaction)
-		.where(between(transaction.tdate, fromDate, toDate));
+		.where(between(transaction.tdate, fromDate, toDate))
+		.orderBy(asc(transaction.tdate), asc(transaction.seq), asc(transaction.id));
 }
 
 export async function createTransaction(t: typeof transaction.$inferInsert) {
@@ -21,6 +22,7 @@ export async function updateTransaction(t: typeof transaction.$inferInsert) {
 		.update(transaction)
 		.set({
 			tdate: t.tdate,
+			seq: t.seq,
 			title: t.title,
 			leftAccountId: t.leftAccountId,
 			rightAccountId: t.rightAccountId,

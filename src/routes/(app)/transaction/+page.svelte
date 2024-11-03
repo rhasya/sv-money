@@ -13,6 +13,14 @@
 
 	const createSchema = z.object({
 		tdate: z.string().date(),
+		seq: z.union([
+			z.number(),
+			z
+				.string()
+				.nullish()
+				.transform((val) => (val ? parseInt(val) : null))
+				.pipe(z.number().nullish())
+		]),
 		title: z.string().min(1),
 		leftAccountId: z.coerce.number(),
 		rightAccountId: z.coerce.number(),
@@ -102,6 +110,7 @@
 			transactions.push({
 				id: new Date().getTime(),
 				tdate: lastAddedDate,
+				seq: null,
 				title: '',
 				state: 'ADD'
 			});
@@ -113,6 +122,12 @@
 		if (!transactions.some((t) => t.state === 'EDIT')) {
 			const idx = transactions.findIndex((t) => t.id === id);
 			transactions[idx].state = 'EDIT';
+		}
+	}
+
+	function handleKeyUp(e: KeyboardEvent, state: string) {
+		if (e.key === 'Enter') {
+			handleSaveClick(state);
 		}
 	}
 
@@ -176,6 +191,7 @@
 	<thead>
 		<tr class="border-y border-primary">
 			<th class="h-9 w-[120px]">Date</th>
+			<th class="w-[90px]">SEQ</th>
 			<th>Title</th>
 			<th class="w-[140px]">Left</th>
 			<th class="w-[140px]">Right</th>
@@ -195,9 +211,17 @@
 							bind:this={firstInputRef}
 						/></td
 					>
-					<td class="h-9 p-0.5"
-						><input type="text" class="h-full w-full px-1" bind:value={transaction.title} /></td
-					>
+					<td class="h-9 p-0.5">
+						<input type="text" class="h-full w-full px-1" bind:value={transaction.seq} />
+					</td>
+					<td class="h-9 p-0.5">
+						<input
+							type="text"
+							class="h-full w-full px-1"
+							bind:value={transaction.title}
+							onkeyup={(e) => handleKeyUp(e, transaction.state!)}
+						/>
+					</td>
 					<td class="h-9 p-0.5">
 						<SimpleSelect
 							class="h-full w-full px-1"
@@ -212,9 +236,14 @@
 							bind:value={transaction.rightAccountId}
 						/>
 					</td>
-					<td class="h-9 p-0.5"
-						><input type="text" class="h-full w-full px-1" bind:value={transaction.amount} /></td
-					>
+					<td class="h-9 p-0.5">
+						<input
+							type="text"
+							class="h-full w-full px-1"
+							bind:value={transaction.amount}
+							onkeyup={(e) => handleKeyUp(e, transaction.state!)}
+						/>
+					</td>
 					<td class="h-9 align-middle">
 						<div class="flex h-full w-full items-center justify-center">
 							<button
@@ -236,6 +265,7 @@
 			{:else}
 				<tr class="border-y border-primary">
 					<td class="normal-cell text-center">{format(transaction.tdate!, 'yyyy-MM-dd')}</td>
+					<td class="normal-cell">{transaction.seq}</td>
 					<td class="normal-cell">{transaction.title}</td>
 					<td class="normal-cell"
 						>{getAccountText(data.leftAccounts, transaction.leftAccountId!, true)}</td

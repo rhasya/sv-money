@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 export async function PUT({ request, params }) {
 	const { id } = params;
-	const { data: transactionId, success } = z.number().safeParse(id);
+	const { data: transactionId, success } = z.coerce.number().safeParse(id);
 	if (!success) {
 		error(404);
 	}
