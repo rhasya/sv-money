@@ -2,7 +2,7 @@
 	import { slide } from 'svelte/transition';
 
 	interface Props {
-		items: { text: string; value: string }[];
+		items: { label: string; value: string }[];
 		name?: string | null;
 		value?: string;
 		onchange?: (v: string) => void;
@@ -11,7 +11,7 @@
 	let { items, name, value = $bindable(), onchange }: Props = $props();
 	let open = $state(false);
 	let ref: HTMLElement;
-	let selected = $derived(items.filter((i) => i.value === value)[0]?.text ?? 'SELECT');
+	let selected = $derived(items.filter((i) => i.value === value)[0]?.label ?? 'SELECT');
 
 	$effect(() => {
 		function handleDocumentClick(e: MouseEvent) {
@@ -38,7 +38,7 @@
 <div class="relative" bind:this={ref}>
 	<select class="hidden h-0 w-0" {name} {value}>
 		{#each items as item}
-			<option value={item.value}>{item.text}</option>
+			<option value={item.value}>{item.label}</option>
 		{/each}
 	</select>
 	<button
@@ -57,8 +57,8 @@
 				<li>
 					<button
 						type="button"
-						class="h-9 w-full px-2 text-left transition-colors hover:bg-primary hover:text-primary-fg"
-						onclick={handleItemClick.bind(null, item.value)}>{item.text}</button
+						class="hover:text-primary-fg h-9 w-full px-2 text-left transition-colors hover:bg-primary"
+						onclick={handleItemClick.bind(null, item.value)}>{item.label}</button
 					>
 				</li>
 			{/each}

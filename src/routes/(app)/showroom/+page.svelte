@@ -7,12 +7,13 @@
 	import Label from '@components/Label.svelte';
 	import TextField from '@components/TextField.svelte';
 
+	import SimpleSelect from '@components/SimpleSelect.svelte';
 	import ShowroomGroup from './ShowroomGroup.svelte';
 
 	const items = [
-		{ text: 'Item1 Text', value: 'Item1' },
-		{ text: 'Item2 Text', value: 'Item2' },
-		{ text: 'Item3 Text', value: 'Item3' }
+		{ label: 'Item1 Text', value: 'Item1' },
+		{ label: 'Item2 Text', value: 'Item2' },
+		{ label: 'Item3 Text', value: 'Item3' }
 	];
 
 	let { isOpen, open, close, onclose } = $derived.by(useDialog);
@@ -49,6 +50,12 @@
 		<div class="flex w-[480px] flex-row gap-2">
 			<div class="grow">
 				<Dropdown {items} bind:value={dropdownValue} />
+			</div>
+			<p>{dropdownValue}</p>
+		</div>
+		<div class="flex w-[480px] flex-row gap-2">
+			<div class="grow">
+				<SimpleSelect {items} bind:value={dropdownValue} />
 			</div>
 			<p>{dropdownValue}</p>
 		</div>

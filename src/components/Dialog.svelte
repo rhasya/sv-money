@@ -8,7 +8,7 @@
 		onclose?: () => void;
 	}
 
-	const { open, title = '제목', children, onclose }: Props = $props();
+	let { open = $bindable(), title = '제목', children, onclose }: Props = $props();
 	let ref: HTMLDialogElement;
 
 	$effect(() => {
@@ -24,7 +24,11 @@
 	}
 </script>
 
-<dialog bind:this={ref} class="min-w-[480px] rounded p-4" onclose={handleClose}>
+<dialog
+	bind:this={ref}
+	class="min-w-[480px] rounded p-8 opacity-0 transition duration-500 open:opacity-100"
+	onclose={handleClose}
+>
 	<div class="flex flex-col gap-2">
 		<h1 class="text-2xl font-bold">{title}</h1>
 		{@render children?.()}

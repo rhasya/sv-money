@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { applyAction, enhance } from '$app/forms';
-	import { invalidateAll } from '$app/navigation';
+	import { invalidate, invalidateAll } from '$app/navigation';
 	import { accountTypes, categories } from '$lib/common/consts';
 	import Button from '@components/Button.svelte';
 	import Dialog from '@components/Dialog.svelte';
@@ -12,7 +12,7 @@
 		id?: number;
 		name: string | null;
 		typeId?: number;
-		category?: string | null;
+		category?: string;
 		seq?: number | null;
 	} = {
 		name: '',
@@ -42,22 +42,21 @@
 		}
 	});
 
-	const accountTypeItems = accountTypes.map((a) => ({ value: a.id, text: a.text }));
+	const accountTypeItems = accountTypes.map((a) => ({ value: `${a.id}`, label: a.text }));
 	const categoriyItems = $derived(
 		categories
 			.filter((c) => c.parent === input.typeId)
-			.map((c) => ({ value: c.code, text: c.text }))
+			.map((c) => ({ value: c.code, label: c.text }))
 	);
 </script>
 
 <Dialog open={isOpen} title="Add/Modify Account" {onclose}>
 	<form
 		method="POST"
-		use:enhance={({ formElement }) => {
-			return ({ result }) => {
+		use:enhance={() => {
+			return async ({ result, update }) => {
 				if (result.type === 'success') {
-					formElement?.reset();
-					invalidateAll();
+					await update();
 					close();
 				}
 				applyAction(result);
@@ -67,34 +66,32 @@
 		<div class="flex h-[320px] flex-col gap-2">
 			<input type="hidden" name="id" value={data?.id} />
 			<div>
-				<Label>Title <TextField placeholder="Name" name="name" value={input.name} /></Label>
+				<Label>
+					<p class="mb-2">Title</p>
+					<TextField placeholder="Name" name="name" value={input.name} />
+				</Label>
 			</div>
 			<div>
-				<Label
-					>Type <SimpleSelect
-						class="bordered-select"
-						items={accountTypeItems}
-						name="typeId"
-						bind:value={input.typeId}
-					/></Label
-				>
+				<Label>
+					<p class="mb-2">Type</p>
+					<SimpleSelect items={accountTypeItems} name="typeId" value={input.category} />
+				</Label>
 			</div>
 			<div>
-				<Label
-					>Category <SimpleSelect
-						class="bordered-select"
-						items={categoriyItems}
-						name="category"
-						value={input.category}
-					/></Label
-				>
+				<Label>
+					<p class="mb-2">Category</p>
+					<SimpleSelect items={categoriyItems} name="category" value={input.category} />
+				</Label>
 			</div>
 			<div>
-				<Label>Sequence <TextField placeholder="Sequence" name="seq" value={input.seq} /></Label>
+				<Label>
+					<p class="mb-2">Sequence</p>
+					<TextField placeholder="Sequence" name="seq" value={input.seq} />
+				</Label>
 			</div>
 		</div>
 		<div>
-			<p>{error}</p>
+			<p class="text-sm text-red-500">{error}</p>
 		</div>
 		<div class="flex justify-end gap-4">
 			<Button type="submit">Save</Button>

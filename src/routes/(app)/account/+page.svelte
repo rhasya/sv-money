@@ -66,20 +66,20 @@
 
 {#snippet table(type: string, rows: typeof items)}
 	<h2 class="text-xl font-bold">{type}</h2>
-	<table class="w-full table-fixed">
+	<table class="mt-2 w-full table-fixed">
 		<tbody>
 			{#each rows as row (row.id)}
 				<tr
 					class={clsx(
 						'cursor-pointer border-y border-primary',
-						selected?.id === row.id && 'bg-primary text-primary-fg'
+						selected?.id === row.id && 'bg-primary text-primary-foreground'
 					)}
 					onclick={handleAccountClick.bind(null, row)}
 					ondblclick={handleAccountDblClick.bind(null, row)}
 				>
-					<td class="w-[140px] px-1 py-1">{row.name}</td>
-					<td class="w-[140px] px-1 py-1">{getCategoryName(row.category)}</td>
-					<td class="w-[140px] px-1 py-1">{row.seq}</td>
+					<td class="w-[140px] px-2 py-1">{row.name}</td>
+					<td class="w-[140px] px-2 py-1">{getCategoryName(row.category)}</td>
+					<td class="w-[140px] px-2 py-1">{row.seq}</td>
 					<td></td>
 				</tr>
 			{/each}
@@ -93,27 +93,31 @@
 	<div class="mt-8 flex gap-2">
 		<Button onclick={handleAddClick}>ADD</Button>
 		<Button variant="secondary" onclick={handleUpdateClick} disabled={!selected}>MODIFY</Button>
-		<Button variant="warn" onclick={handleDeleteClick} disabled={!selected}>DELETE</Button>
+		<Button variant="destructive" onclick={handleDeleteClick} disabled={!selected}>DELETE</Button>
 	</div>
 
-	<div class="mt-2">
-		{@render table(accountTypes[0].text, capital)}
-	</div>
+	<div class="mt-4 flex">
+		<div class="flex flex-col">
+			<div class="px-2">
+				{@render table(accountTypes[0].text, capital)}
+			</div>
 
-	<div class="mt-1">
-		{@render table(accountTypes[1].text, asset)}
-	</div>
+			<div class="mt-3 px-2">
+				{@render table(accountTypes[1].text, asset)}
+			</div>
 
-	<div class="mt-1">
-		{@render table(accountTypes[2].text, debt)}
-	</div>
+			<div class="mt-3 px-2">
+				{@render table(accountTypes[2].text, debt)}
+			</div>
+		</div>
 
-	<div class="mt-1">
-		{@render table(accountTypes[3].text, incoming)}
-	</div>
+		<div class="px-2">
+			{@render table(accountTypes[3].text, incoming)}
+		</div>
 
-	<div class="mt-1">
-		{@render table(accountTypes[4].text, spending)}
+		<div class="px-2">
+			{@render table(accountTypes[4].text, spending)}
+		</div>
 	</div>
 
 	<AccountDialog
@@ -125,7 +129,7 @@
 			id: selected?.id,
 			name: selected?.name!,
 			typeId: selected?.typeId,
-			category: selected?.category,
+			category: selected?.category ?? '',
 			seq: selected?.seq
 		}}
 	/>
