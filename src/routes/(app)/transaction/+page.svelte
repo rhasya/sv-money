@@ -171,8 +171,10 @@
 			const { result } = await res.json();
 			const target = transactions.filter(({ state }) => state === 'ADD')[0];
 			if (target) {
-				target.leftAccountId = result?.leftAccountId;
-				target.rightAccountId = result?.rightAccountId;
+				if (!target.leftAccountId && !target.rightAccountId) {
+					target.leftAccountId = result?.leftAccountId;
+					target.rightAccountId = result?.rightAccountId;
+				}
 			}
 		}
 	}
@@ -238,14 +240,14 @@
 						</td>
 						<td class="h-9 p-0.5">
 							<SimpleSelect
-								class="h-full w-full px-1"
+								variant="small"
 								items={data.leftAccounts.map((a) => ({ value: a.id, label: a.name! }))}
 								bind:value={transaction.leftAccountId}
 							/>
 						</td>
 						<td class="h-9 p-0.5">
 							<SimpleSelect
-								class="h-full w-full px-1"
+								variant="small"
 								items={data.rightAccounts.map((a) => ({ value: a.id, label: a.name! }))}
 								bind:value={transaction.rightAccountId}
 							/>
