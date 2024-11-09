@@ -164,6 +164,18 @@
 			handleSearchClick();
 		}
 	}
+
+	async function handleTitleBlur(e: FocusEvent & { currentTarget: Element & HTMLInputElement }) {
+		const res = await fetch(encodeURI(`/api/transaction?title=${e.currentTarget.value}`));
+		if (res.ok) {
+			const { result } = await res.json();
+			const target = transactions.filter(({ state }) => state === 'ADD')[0];
+			if (target) {
+				target.leftAccountId = result?.leftAccountId;
+				target.rightAccountId = result?.rightAccountId;
+			}
+		}
+	}
 </script>
 
 <PageTitle>Transactions</PageTitle>
@@ -187,117 +199,121 @@
 		<Button onclick={handleAddClick}>CREATE</Button>
 	</div>
 </div>
-<table class="mt-4 w-full table-fixed border-collapse">
-	<thead>
-		<tr class="border-y border-primary">
-			<th class="h-9 w-[120px]">Date</th>
-			<th class="w-[90px]">SEQ</th>
-			<th>Title</th>
-			<th class="w-[140px]">Left</th>
-			<th class="w-[140px]">Right</th>
-			<th class="w-[100px]">Amount</th>
-			<th class="w-[80px]">A</th>
-		</tr>
-	</thead>
-	<tbody>
-		{#each transactions as transaction (transaction.id)}
-			{#if transaction.state === 'ADD' || transaction.state === 'EDIT'}
-				<tr class="border-y border-primary">
-					<td class="h-9 p-0.5"
-						><input
-							type="date"
-							class="h-full w-full px-1"
-							bind:value={transaction.tdate}
-							bind:this={firstInputRef}
-						/></td
-					>
-					<td class="h-9 p-0.5">
-						<input type="text" class="h-full w-full px-1" bind:value={transaction.seq} />
-					</td>
-					<td class="h-9 p-0.5">
-						<input
-							type="text"
-							class="h-full w-full px-1"
-							bind:value={transaction.title}
-							onkeyup={(e) => handleKeyUp(e, transaction.state!)}
-						/>
-					</td>
-					<td class="h-9 p-0.5">
-						<SimpleSelect
-							class="h-full w-full px-1"
-							items={data.leftAccounts.map((a) => ({ value: a.id, text: a.name! }))}
-							bind:value={transaction.leftAccountId}
-						/>
-					</td>
-					<td class="h-9 p-0.5">
-						<SimpleSelect
-							class="h-full w-full px-1"
-							items={data.rightAccounts.map((a) => ({ value: a.id, text: a.name! }))}
-							bind:value={transaction.rightAccountId}
-						/>
-					</td>
-					<td class="h-9 p-0.5">
-						<input
-							type="text"
-							class="h-full w-full px-1"
-							bind:value={transaction.amount}
-							onkeyup={(e) => handleKeyUp(e, transaction.state!)}
-						/>
-					</td>
-					<td class="h-9 align-middle">
-						<div class="flex h-full w-full items-center justify-center">
-							<button
-								type="button"
-								class="icon-button"
-								onclick={() => handleSaveClick(transaction.state!)}
-							>
-								<Save class="h-6 w-6" />
-							</button>
-							<button type="button" class="icon-button"
-								><Ban
-									class="h-6 w-6"
-									onclick={() => handleCancelClick(transaction.state!)}
-								/></button
-							>
-						</div>
-					</td>
-				</tr>
-			{:else}
-				<tr class="border-y border-primary">
-					<td class="normal-cell text-center">{format(transaction.tdate!, 'yyyy-MM-dd')}</td>
-					<td class="normal-cell">{transaction.seq}</td>
-					<td class="normal-cell">{transaction.title}</td>
-					<td class="normal-cell"
-						>{getAccountText(data.leftAccounts, transaction.leftAccountId!, true)}</td
-					>
-					<td class="normal-cell"
-						>{getAccountText(data.rightAccounts, transaction.rightAccountId!, false)}</td
-					>
-					<td class="normal-cell text-right">{formatNumber(transaction.amount ?? 0)}</td>
-					<td>
-						<div class="flex h-full w-full justify-center">
-							<button type="button" onclick={() => handleEditClick(transaction.id!)}
-								><Pencil class="h-6 w-6" /></button
-							>
-						</div>
-					</td>
-				</tr>
-			{/if}
-		{/each}
-	</tbody>
-	{#if false}
-		<tfoot>
-			<tr class="border-y border-primary bg-primary text-primary-fg">
-				<th class="p-1 text-right" colspan={4}>SUM</th>
-				<th class="text-right">1000</th>
-				<th></th>
+<div class="max-h-[700px] overflow-auto">
+	<table class="mt-4 w-full table-fixed border-collapse">
+		<thead>
+			<tr class="border-y border-primary">
+				<th class="h-9 w-[120px]">Date</th>
+				<th class="w-[90px]">SEQ</th>
+				<th>Title</th>
+				<th class="w-[140px]">Left</th>
+				<th class="w-[140px]">Right</th>
+				<th class="w-[100px]">Amount</th>
+				<th class="w-[80px]">A</th>
 			</tr>
-		</tfoot>
-	{/if}
-</table>
+		</thead>
+		<tbody>
+			{#each transactions as transaction (transaction.id)}
+				{#if transaction.state === 'ADD' || transaction.state === 'EDIT'}
+					<tr class="border-y border-primary">
+						<td class="h-9 p-0.5"
+							><input
+								type="date"
+								class="h-full w-full px-1"
+								bind:value={transaction.tdate}
+								bind:this={firstInputRef}
+							/></td
+						>
+						<td class="h-9 p-0.5">
+							<input type="text" class="h-full w-full px-1" bind:value={transaction.seq} />
+						</td>
+						<td class="h-9 p-0.5">
+							<input
+								type="text"
+								class="h-full w-full px-1"
+								bind:value={transaction.title}
+								onkeyup={(e) => handleKeyUp(e, transaction.state!)}
+								onblur={handleTitleBlur}
+							/>
+						</td>
+						<td class="h-9 p-0.5">
+							<SimpleSelect
+								class="h-full w-full px-1"
+								items={data.leftAccounts.map((a) => ({ value: a.id, label: a.name! }))}
+								bind:value={transaction.leftAccountId}
+							/>
+						</td>
+						<td class="h-9 p-0.5">
+							<SimpleSelect
+								class="h-full w-full px-1"
+								items={data.rightAccounts.map((a) => ({ value: a.id, label: a.name! }))}
+								bind:value={transaction.rightAccountId}
+							/>
+						</td>
+						<td class="h-9 p-0.5">
+							<input
+								type="text"
+								class="h-full w-full px-1"
+								bind:value={transaction.amount}
+								onkeyup={(e) => handleKeyUp(e, transaction.state!)}
+							/>
+						</td>
+						<td class="h-9 align-middle">
+							<div class="flex h-full w-full items-center justify-center">
+								<button
+									type="button"
+									class="icon-button"
+									onclick={() => handleSaveClick(transaction.state!)}
+								>
+									<Save class="h-6 w-6" />
+								</button>
+								<button type="button" class="icon-button"
+									><Ban
+										class="h-6 w-6"
+										onclick={() => handleCancelClick(transaction.state!)}
+									/></button
+								>
+							</div>
+						</td>
+					</tr>
+				{:else}
+					<tr class="border-y border-primary">
+						<td class="normal-cell text-center">{format(transaction.tdate!, 'yyyy-MM-dd')}</td>
+						<td class="normal-cell">{transaction.seq}</td>
+						<td class="normal-cell">{transaction.title}</td>
+						<td class="normal-cell"
+							>{getAccountText(data.leftAccounts, transaction.leftAccountId!, true)}</td
+						>
+						<td class="normal-cell"
+							>{getAccountText(data.rightAccounts, transaction.rightAccountId!, false)}</td
+						>
+						<td class="normal-cell text-right">{formatNumber(transaction.amount ?? 0)}</td>
+						<td>
+							<div class="flex h-full w-full justify-center">
+								<button type="button" onclick={() => handleEditClick(transaction.id!)}
+									><Pencil class="h-6 w-6" /></button
+								>
+							</div>
+						</td>
+					</tr>
+				{/if}
+			{/each}
+		</tbody>
+		{#if false}
+			<tfoot>
+				<tr class="text-primary-fg border-y border-primary bg-primary">
+					<th class="p-1 text-right" colspan={4}>SUM</th>
+					<th class="text-right">1000</th>
+					<th></th>
+				</tr>
+			</tfoot>
+		{/if}
+	</table>
+</div>
 {#if errorMsg}
 	<ErrorCard onclick={() => (errorMsg = null)}>{errorMsg}</ErrorCard>
 {/if}
+<div class="h-9"></div>
 
 <style lang="postcss">
 	.icon-button {

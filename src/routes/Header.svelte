@@ -5,6 +5,7 @@
 				<a href="/">SVMoney</a>
 			</div>
 			<menu class="flex items-center space-x-4 text-white">
+				<li><a href="/dashboard">Dashboard</a></li>
 				<li><a href="/account">Account</a></li>
 				<li><a href="/transaction">Transaction</a></li>
 				<li><a href="/showroom">Showroom</a></li>

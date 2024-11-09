@@ -6,7 +6,7 @@ const acc = accountTypes.map((a) => a.id);
 const cat = categories.map((c) => c.code);
 
 const accountValid = z.object({
-	id: z.coerce.number().optional(),
+	id: z.coerce.number(),
 	name: z.string(),
 	typeId: z.coerce.number().refine((val) => acc.includes(val), { message: 'Account type error' }),
 	category: z
@@ -35,7 +35,7 @@ export const actions = {
 			return { error: error.errors[0].message };
 		}
 
-		if (data.id) {
+		if (data.id && data.id > 0) {
 			await updateAccount(data);
 		} else {
 			await createAccount(data);

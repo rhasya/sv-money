@@ -42,7 +42,7 @@
 		}
 	});
 
-	const accountTypeItems = accountTypes.map((a) => ({ value: `${a.id}`, label: a.text }));
+	const accountTypeItems = accountTypes.map((a) => ({ value: a.id, label: a.text }));
 	const categoriyItems = $derived(
 		categories
 			.filter((c) => c.parent === input.typeId)
@@ -74,7 +74,7 @@
 			<div>
 				<Label>
 					<p class="mb-2">Type</p>
-					<SimpleSelect items={accountTypeItems} name="typeId" value={input.category} />
+					<SimpleSelect items={accountTypeItems} name="typeId" value={input.typeId} />
 				</Label>
 			</div>
 			<div>
