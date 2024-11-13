@@ -1,6 +1,7 @@
 <script lang="ts">
+	import { cx } from 'class-variance-authority';
 	import type { HTMLLabelAttributes } from 'svelte/elements';
-	const { children }: Omit<HTMLLabelAttributes, 'class'> = $props();
+	const { children, class: className }: HTMLLabelAttributes = $props();
 </script>
 
-<label class="text-sm font-medium">{@render children?.()}</label>
+<label class={cx('text-sm font-medium', className)}>{@render children?.()}</label>

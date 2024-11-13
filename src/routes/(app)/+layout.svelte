@@ -1,7 +1,15 @@
 <script lang="ts">
-	const { children } = $props();
+	import Header from './Header.svelte';
+	let { children } = $props();
 </script>
 
-<main class="container mx-auto p-4">
-	{@render children()}
-</main>
+<svelte:head>
+	<title>SV-Money</title>
+</svelte:head>
+
+<div class="flex min-h-screen w-full flex-col">
+	<Header />
+	<main class="flex grow flex-col px-8 py-6">
+		{@render children()}
+	</main>
+</div>

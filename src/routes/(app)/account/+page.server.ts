@@ -1,22 +1,19 @@
 import { accountTypes, categories } from '$lib/common/consts.js';
 import { createAccount, getAccounts, updateAccount } from '$lib/server/service/accountService';
+import { fail } from '@sveltejs/kit';
 import { z } from 'zod';
 
-const acc = accountTypes.map((a) => a.id);
-const cat = categories.map((c) => c.code);
+const nullableNumber = z
+	.string()
+	.transform((arg) => (arg === '' ? undefined : parseInt(arg)))
+	.pipe(z.union([z.number(), z.undefined()]));
 
-const accountValid = z.object({
-	id: z.coerce.number(),
-	name: z.string(),
-	typeId: z.coerce.number().refine((val) => acc.includes(val), { message: 'Account type error' }),
-	category: z
-		.string()
-		.nullish()
-		.refine((val) => !val || cat.includes(val), { message: 'Category error' }),
-	seq: z
-		.string()
-		.transform((v) => (v === '' ? null : parseInt(v)))
-		.pipe(z.number().nullish())
+const accountForm = z.object({
+	id: nullableNumber,
+	name: z.string().min(1).max(100),
+	typeId: z.enum(['1', '2', '3', '4', '5']).transform((arg) => parseInt(arg)),
+	category: z.string().nullish(),
+	sequence: nullableNumber
 });
 
 export async function load() {
@@ -28,14 +25,18 @@ export const actions = {
 	default: async ({ request }) => {
 		const formData = await request.formData();
 		const input = Object.fromEntries(formData);
+		console.log(input);
 
-		const { data, error } = accountValid.safeParse(input);
+		const { data, error } = accountForm.safeParse(input);
 		if (error) {
-			console.log(error.errors);
-			return { error: error.errors[0].message };
+			console.error(error.errors);
+			return fail(422, {
+				error: error.errors.map(({ path, message }) => ({ [path[0]]: message }))
+			});
 		}
+		console.log(data);
 
-		if (data.id && data.id > 0) {
+		if (data.id) {
 			await updateAccount(data);
 		} else {
 			await createAccount(data);

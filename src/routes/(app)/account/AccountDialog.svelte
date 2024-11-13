@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { applyAction, enhance } from '$app/forms';
-	import { invalidate, invalidateAll } from '$app/navigation';
 	import { accountTypes, categories } from '$lib/common/consts';
 	import Button from '@components/Button.svelte';
 	import Dialog from '@components/Dialog.svelte';
@@ -8,94 +7,66 @@
 	import SimpleSelect from '@components/SimpleSelect.svelte';
 	import TextField from '@components/TextField.svelte';
 
-	const initialData: {
-		id?: number;
-		name: string | null;
-		typeId?: number;
-		category?: string;
-		seq?: number | null;
-	} = {
-		name: '',
-		category: '',
-		seq: null
-	};
+	let { open = $bindable(), error }: { open: boolean; error?: Record<string, string> } = $props();
+	let accountTypeId = $state<number>();
 
-	let {
-		isOpen,
-		onclose,
-		close,
-		error,
-		data
-	}: {
-		isOpen: boolean;
-		onclose: () => void;
-		close: () => void;
-		error?: string;
-		data?: typeof initialData | null;
-	} = $props();
-
-	let input = $state(initialData);
-
-	$effect(() => {
-		if (data) {
-			input = data;
-		}
-	});
-
-	const accountTypeItems = accountTypes.map((a) => ({ value: a.id, label: a.text }));
-	const categoriyItems = $derived(
+	const accountTypeItems = accountTypes.map(({ id: value, text: label }) => ({ value, label }));
+	const categoryItems = $derived(
 		categories
-			.filter((c) => c.parent === input.typeId)
-			.map((c) => ({ value: c.code, label: c.text }))
+			.filter(({ parent }) => parent === accountTypeId)
+			.map(({ code: value, text: label }) => ({ value, label }))
 	);
 </script>
 
-<Dialog open={isOpen} title="Add/Modify Account" {onclose}>
+<Dialog bind:open title="Account detail">
 	<form
+		class="contents"
 		method="POST"
 		use:enhance={() => {
-			return async ({ result, update }) => {
+			return ({ result, update }) => {
+				console.log(result);
 				if (result.type === 'success') {
-					await update();
-					close();
+					open = false;
+					update();
 				}
 				applyAction(result);
 			};
 		}}
 	>
-		<div class="flex h-[320px] flex-col gap-2">
-			<input type="hidden" name="id" value={data?.id} />
-			<div>
-				<Label>
-					<p class="mb-2">Title</p>
-					<TextField placeholder="Name" name="name" value={input.name} />
-				</Label>
-			</div>
-			<div>
-				<Label>
-					<p class="mb-2">Type</p>
-					<SimpleSelect items={accountTypeItems} name="typeId" value={input.typeId} />
-				</Label>
-			</div>
-			<div>
-				<Label>
-					<p class="mb-2">Category</p>
-					<SimpleSelect items={categoriyItems} name="category" value={input.category} />
-				</Label>
-			</div>
-			<div>
-				<Label>
-					<p class="mb-2">Sequence</p>
-					<TextField placeholder="Sequence" name="seq" value={input.seq} />
-				</Label>
-			</div>
+		<div class="mt-4 flex w-[480px] flex-col gap-4">
+			<input type="hidden" name="id" />
+			<Label>
+				<span>Name *</span>
+				<TextField class="mt-1" name="name" placeholder="Name" />
+				<span></span>
+			</Label>
+			<Label>
+				<span>Account Type *</span>
+				<SimpleSelect
+					class="mt-1"
+					name="typeId"
+					items={accountTypeItems}
+					emptyLine={false}
+					bind:value={accountTypeId}
+				/>
+			</Label>
+			<Label>
+				<span>Category</span>
+				<SimpleSelect
+					class="mt-1"
+					name="category"
+					items={categoryItems}
+					disabled={categoryItems.length === 0}
+				/>
+			</Label>
+			<Label>
+				<span>Sequence</span>
+				<TextField class="mt-1" name="sequence" placeholder="Sequence" />
+			</Label>
 		</div>
-		<div>
-			<p class="text-sm text-red-500">{error}</p>
-		</div>
-		<div class="flex justify-end gap-4">
+		<div class="mt-6 flex justify-end gap-4">
+			<Button variant="secondary" onclick={() => (open = false)}>Close</Button>
 			<Button type="submit">Save</Button>
-			<Button type="button" variant="secondary" onclick={close}>Close</Button>
 		</div>
 	</form>
 </Dialog>

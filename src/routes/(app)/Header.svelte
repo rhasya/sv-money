@@ -1,4 +1,4 @@
-<header class="w-full bg-slate-600 px-8">
+<header class="w-full shrink-0 bg-slate-600 px-8">
 	<div class="flex h-[60px] items-center justify-between">
 		<div class="flex items-center space-x-8">
 			<div class="font-logo text-3xl font-bold text-white">
@@ -10,6 +10,9 @@
 				<li><a href="/transaction">Transaction</a></li>
 				<li><a href="/showroom">Showroom</a></li>
 			</menu>
+		</div>
+		<div class="flex items-center justify-between">
+			<button class="btn-default btn glass">Login</button>
 		</div>
 	</div>
 </header>

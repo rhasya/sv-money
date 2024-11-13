@@ -1,7 +1,7 @@
 import type { Config } from 'tailwindcss';
 
 export default {
-	content: ['./src/**/*.{html,js,svelte,ts}'],
+	content: ['./src/**/*.{html,js,svelte,ts}', 'node_modules/flyonui/dist/js/*.js'],
 
 	theme: {
 		extend: {
@@ -53,10 +53,11 @@ export default {
 				}
 			},
 			fontFamily: {
-				sans: ['Noto Sans KR', 'sans-serif']
+				sans: ['Noto Sans KR', 'sans-serif'],
+				logo: ['NewsReader']
 			}
 		}
 	},
 
-	plugins: [require('tailwindcss-animate')]
+	plugins: [require('tailwindcss-animate'), require('flyonui'), require('flyonui/plugin')]
 } as Config;

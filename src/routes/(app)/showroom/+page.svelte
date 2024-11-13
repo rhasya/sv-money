@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { useDialog } from '$lib/common/dialog.svelte';
-
 	import Button from '@components/Button.svelte';
 	import Dialog from '@components/Dialog.svelte';
 	import Dropdown from '@components/Dropdown.svelte';
@@ -16,14 +14,14 @@
 		{ label: 'Item3 Text', value: 'Item3' }
 	];
 
-	let { isOpen, open, close, onclose } = $derived.by(useDialog);
 	let name = $state('');
 	let dropdownValue = $state('');
+	let open = $state(false);
 
 	function handleOkClick() {
 		alert(name);
 		name = '';
-		close();
+		open = false;
 	}
 </script>
 
@@ -62,16 +60,17 @@
 	</ShowroomGroup>
 	<ShowroomGroup title="모달 다이얼로그">
 		<div>
-			<Button onclick={open}>열기</Button>
+			<Button onclick={() => (open = true)}>열기</Button>
+			<Button variant="secondary" onclick={() => alert(open)}>CHECK</Button>
 		</div>
 	</ShowroomGroup>
 </div>
-<Dialog open={isOpen} {onclose}>
+<Dialog bind:open>
 	<div>
 		<Label>Username<TextField bind:value={name} /></Label>
 	</div>
 	<div class="flex justify-end gap-2">
 		<Button onclick={handleOkClick}>확인</Button>
-		<Button variant="secondary" onclick={close}>닫기</Button>
+		<Button variant="secondary" onclick={() => (open = false)}>닫기</Button>
 	</div>
 </Dialog>

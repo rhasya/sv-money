@@ -43,6 +43,7 @@
 		"clsx": "^2.1.1",
 		"date-fns": "^4.1.0",
 		"drizzle-orm": "^0.33.0",
+		"flyonui": "^1.1.0",
 		"lucide-svelte": "^0.454.0",
 		"pg": "^8.13.1",
 		"tailwindcss-animate": "^1.0.7",

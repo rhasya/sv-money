@@ -15,11 +15,12 @@
 	});
 
 	type SimpleSelectProps = {
-		items: { value: string | number; label: string }[];
+		items: { value: string | number; label: string; type?: number }[];
 		emptyLine?: boolean;
 		class?: string;
 		name?: string;
 		value?: string | number;
+		disabled?: boolean;
 	} & VariantProps<typeof simpleSelectVariant>;
 	let {
 		items,
@@ -27,22 +28,30 @@
 		variant,
 		name,
 		class: className,
-		value = $bindable()
+		value = $bindable(),
+		disabled
 	}: SimpleSelectProps = $props();
 </script>
 
 <select
-	class={cx(
-		'w-full whitespace-nowrap bg-transparent px-3 text-sm ring-offset-background disabled:cursor-not-allowed disabled:opacity-50',
-		simpleSelectVariant({ variant, className })
-	)}
+	class={cx('select w-full appearance-none', simpleSelectVariant({ variant, className }))}
+	aria-label="select"
 	{name}
+	{disabled}
 	bind:value
 >
 	{#if emptyLine}
 		<option></option>
 	{/if}
 	{#each items as item (item.value)}
-		<option value={item.value}>{item.label}</option>
+		<option
+			value={item.value}
+			class={cx({
+				'bg-green-50': item.type === 2,
+				'bg-orange-50': item.type === 3,
+				'bg-blue-50': item.type === 4,
+				'bg-red-50': item.type === 5
+			})}>{item.label}</option
+		>
 	{/each}
 </select>
