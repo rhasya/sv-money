@@ -22,6 +22,7 @@
 	<form
 		class="contents"
 		method="POST"
+		action="?/post"
 		use:enhance={() => {
 			return ({ result, update }) => {
 				console.log(result);

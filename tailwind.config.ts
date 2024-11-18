@@ -59,5 +59,5 @@ export default {
 		}
 	},
 
-	plugins: [require('tailwindcss-animate'), require('flyonui'), require('flyonui/plugin')]
+	plugins: [require('tailwindcss-animate')]
 } as Config;

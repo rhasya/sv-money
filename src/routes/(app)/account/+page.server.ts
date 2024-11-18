@@ -1,7 +1,11 @@
-import { accountTypes, categories } from '$lib/common/consts.js';
-import { createAccount, getAccounts, updateAccount } from '$lib/server/service/accountService';
 import { fail } from '@sveltejs/kit';
 import { z } from 'zod';
+import {
+	createAccount,
+	deleteAccount,
+	getAccounts,
+	updateAccount
+} from '$lib/server/service/accountService';
 
 const nullableNumber = z
 	.string()
@@ -22,7 +26,7 @@ export async function load() {
 }
 
 export const actions = {
-	default: async ({ request }) => {
+	post: async ({ request }) => {
 		const formData = await request.formData();
 		const input = Object.fromEntries(formData);
 		console.log(input);
@@ -34,7 +38,6 @@ export const actions = {
 				error: error.errors.map(({ path, message }) => ({ [path[0]]: message }))
 			});
 		}
-		console.log(data);
 
 		if (data.id) {
 			await updateAccount(data);
@@ -42,5 +45,20 @@ export const actions = {
 			await createAccount(data);
 		}
 		return {};
+	},
+	delete: async ({ request }) => {
+		const formData = await request.formData();
+		const input = formData.get('accountId');
+
+		if (input === '') {
+			return fail(422);
+		}
+		const { data: accountId, success } = z.coerce.number().safeParse(input);
+		console.log(accountId);
+		if (!success) {
+			return fail(422);
+		}
+
+		await deleteAccount(accountId);
 	}
 };

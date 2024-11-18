@@ -1,4 +1,4 @@
-<header class="w-full shrink-0 bg-slate-600 px-8">
+<header class="w-full shrink-0 bg-foreground px-8">
 	<div class="flex h-[60px] items-center justify-between">
 		<div class="flex items-center space-x-8">
 			<div class="font-logo text-3xl font-bold text-white">
