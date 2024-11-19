@@ -8,6 +8,14 @@ declare global {
 		// interface PageState {}
 		// interface Platform {}
 	}
+
+	type AccountTable = {
+		id: number;
+		name: string;
+		typeId: number;
+		category: string;
+		seq: number;
+	};
 }
 
 export {};

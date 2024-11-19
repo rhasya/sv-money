@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Select, type SelectItemProps } from 'bits-ui';
-	import { cn } from '@/lib/utils';
 	import { Check } from 'lucide-svelte';
+	import { cn } from '$lib/utils';
 	let {
 		class: className,
 		selected = false,

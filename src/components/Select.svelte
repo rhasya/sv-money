@@ -1,22 +1,20 @@
 <script lang="ts">
-	import { Select, type WithoutChildren } from 'bits-ui';
+	import { ChevronsUpDown } from 'lucide-svelte';
+	import { Select, SelectTrigger, SelectContent, SelectItem, type SelectProps } from './ui/select';
 
-	type Props = WithoutChildren<Select.RootProps> & {
-		items: { value: string; label: string; disabled?: boolean }[];
-	};
+	type Props = SelectProps;
 
-	let { items, type = 'single', value = $bindable(), ...props }: Props = $props();
+	let { value = $bindable(), items = [], ...props }: Props = $props();
 </script>
 
-<Select.Root {...props} bind:value>
-	<Select.Trigger>{value}</Select.Trigger>
-	<Select.Portal>
-		<Select.Content>
-			<Select.Viewport>
-				{#each items ?? [] as item}
-					<Select.Item disabled={item.disabled} value={item.value}>{item.label}</Select.Item>
-				{/each}
-			</Select.Viewport>
-		</Select.Content>
-	</Select.Portal>
-</Select.Root>
+<Select bind:value {...props}>
+	<SelectTrigger>
+		<span>{items.find(({ value: v }) => value === v)?.label ?? ''}</span>
+		<ChevronsUpDown class="h-4 w-4" />
+	</SelectTrigger>
+	<SelectContent>
+		{#each items as item}
+			<SelectItem value={item.value} selected={item.value === value}>{item.label}</SelectItem>
+		{/each}
+	</SelectContent>
+</Select>

@@ -29,13 +29,11 @@ export const actions = {
 	post: async ({ request }) => {
 		const formData = await request.formData();
 		const input = Object.fromEntries(formData);
-		console.log(input);
 
 		const { data, error } = accountForm.safeParse(input);
 		if (error) {
-			console.error(error.errors);
 			return fail(422, {
-				error: error.errors.map(({ path, message }) => ({ [path[0]]: message }))
+				error: new Map(error.errors.map(({ path, message }) => [`${path[0]}`, message]))
 			});
 		}
 
@@ -44,7 +42,7 @@ export const actions = {
 		} else {
 			await createAccount(data);
 		}
-		return {};
+		return { error: undefined };
 	},
 	delete: async ({ request }) => {
 		const formData = await request.formData();
@@ -54,7 +52,7 @@ export const actions = {
 			return fail(422);
 		}
 		const { data: accountId, success } = z.coerce.number().safeParse(input);
-		console.log(accountId);
+
 		if (!success) {
 			return fail(422);
 		}

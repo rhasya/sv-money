@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Button from '@components/Button.svelte';
-	import SimpleSelect from '@components/SimpleSelect.svelte';
+	import { Select, SelectTrigger, SelectContent, SelectItem } from '@components/ui/select';
+	import { ChevronsUpDown } from 'lucide-svelte';
 
 	type Props = {
 		year: string;
@@ -21,9 +22,18 @@
 </script>
 
 <div class="flex space-x-4">
-	<div class="w-[100px]">
-		<SimpleSelect items={years} bind:value={year} />
-	</div>
+	<Select bind:value={year}>
+		<SelectTrigger class="w-[100px]">
+			<span>{year}</span>
+			<span><ChevronsUpDown class="h-4 w-4" /></span>
+		</SelectTrigger>
+		<SelectContent>
+			{#each years as yy}
+				<SelectItem value={yy.value}>{yy.label}</SelectItem>
+			{/each}
+		</SelectContent>
+	</Select>
+
 	<div class="flex space-x-1">
 		{#each months as m}
 			<Button

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Select, type SelectTriggerProps } from 'bits-ui';
-	import { cn } from '@/lib/utils';
+	import { cn } from '$lib/utils';
+
 	const { children, class: className, ...props }: SelectTriggerProps = $props();
 </script>
 

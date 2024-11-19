@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { cn } from '@/lib/utils';
+	import { cn } from '$lib/utils';
 	import { Select, type SelectContentProps } from 'bits-ui';
 
 	let { class: className, children, ...props }: SelectContentProps = $props();
