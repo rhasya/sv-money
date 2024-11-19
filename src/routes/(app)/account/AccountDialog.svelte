@@ -22,7 +22,7 @@
 		onOpenChange
 	}: {
 		open: boolean;
-		account?: AccountTable;
+		account?: AccountTable | null;
 		error?: Map<string, string>;
 		onOpenChange?: (open: boolean) => void;
 	} = $props();
@@ -33,10 +33,10 @@
 			$inspect(account);
 			copiedAccount = {
 				id: account?.id,
-				name: account?.name,
+				name: account?.name!,
 				typeId: `${account?.typeId ?? ''}`,
 				category: `${account?.category ?? ''}`,
-				seq: account?.seq
+				seq: account?.seq!
 			};
 		}
 	});

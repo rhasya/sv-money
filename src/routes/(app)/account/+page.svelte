@@ -5,9 +5,10 @@
 	import ListGroup from '@components/ListGroup.svelte';
 	import PageTitle from '@components/PageTitle.svelte';
 	import AccountDialog from './AccountDialog.svelte';
-	import { Trash, TrashIcon } from 'lucide-svelte';
+	import { Trash } from 'lucide-svelte';
 	import { enhance } from '$app/forms';
 	import { tick } from 'svelte';
+	import { fade } from 'svelte/transition';
 
 	const { data, form } = $props();
 
@@ -63,7 +64,7 @@
 					tabindex={-1}
 				>
 					<button
-						class="grid w-full grid-cols-[3fr_2fr_1fr] items-center justify-between p-3 no-underline hover:bg-muted"
+						class="transition-color grid w-full grid-cols-[4fr_3fr_0.4fr_0.6fr] items-center justify-between p-3 no-underline hover:bg-muted"
 						onclick={() => handleUpdateClick(row)}
 					>
 						<span class="basis-[140px] text-left">{row.name}</span>
@@ -71,12 +72,15 @@
 						<span class="basis-[40px]">{row.seq}</span>
 					</button>
 					{#if row.id === hoverId}
-						<div class="absolute bottom-0 right-2 top-0 flex items-center justify-center">
+						<div
+							class="absolute bottom-0 right-2 top-0 flex items-center justify-center"
+							transition:fade={{ duration: 150 }}
+						>
 							<button
-								class="flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600"
+								class="flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-white hover:bg-red-700"
 								onclick={() => handleAccountDeleteClick(row.id)}
 							>
-								<TrashIcon class="h-4 w-4" />
+								<Trash class="h-4 w-4" />
 							</button>
 						</div>
 					{/if}

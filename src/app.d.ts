@@ -11,10 +11,10 @@ declare global {
 
 	type AccountTable = {
 		id: number;
-		name: string;
+		name: string | null;
 		typeId: number;
-		category: string;
-		seq: number;
+		category: string | null;
+		seq: number | null;
 	};
 }
 
