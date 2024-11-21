@@ -38,6 +38,7 @@
 	},
 	"dependencies": {
 		"@libsql/client": "^0.9.0",
+		"@tanstack/table-core": "^8.20.5",
 		"bits-ui": "1.0.0-next.59",
 		"class-variance-authority": "^0.7.0",
 		"clsx": "^2.1.1",
