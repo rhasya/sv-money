@@ -16,7 +16,7 @@
 	}
 </script>
 
-<div>
+<div class="shrink-0">
 	<input type="date" class="border-primary h-9 rounded border px-1" bind:value={fromDate} /> -
 	<input type="date" class="border-primary h-9 rounded border px-1" bind:value={toDate} />
 </div>

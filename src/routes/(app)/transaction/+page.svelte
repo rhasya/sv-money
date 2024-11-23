@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { formatNumber } from '$lib/common/utils';
 	import {
@@ -9,41 +10,23 @@
 		TableHeader,
 		TableRow
 	} from '$lib/components/ui/table';
+	import { Input } from '$lib/components/ui/input';
 	import Button from '@components/Button.svelte';
 	import DateRangePicker from '@components/DateRangePicker.svelte';
 	import PageTitle from '@components/PageTitle.svelte';
-	import SimpleSelect from '@components/SimpleSelect.svelte';
 	import { addMonths, endOfMonth, format, startOfMonth } from 'date-fns';
-	import { Ban, ChevronLeft, ChevronRight, Pencil, Save } from 'lucide-svelte';
+	import { Ban, ChevronLeft, ChevronRight, Pencil, Save, Trash } from 'lucide-svelte';
 	import { tick } from 'svelte';
-	import { z, ZodError } from 'zod';
 	import ErrorCard from './ErrorCard.svelte';
-	import MonthButtons from './MonthButtons.svelte';
 	import GridSelect from './GridSelect.svelte';
+	import MonthButtons from './MonthButtons.svelte';
 
-	const createSchema = z.object({
-		tdate: z.string().date(),
-		seq: z.union([
-			z.number(),
-			z
-				.string()
-				.nullish()
-				.transform((val) => (val ? parseInt(val) : null))
-				.pipe(z.number().nullish())
-		]),
-		title: z.string().min(1),
-		leftAccountId: z.coerce.number(),
-		rightAccountId: z.coerce.number(),
-		amount: z.preprocess((val) => `${val}`.replaceAll(',', ''), z.coerce.number())
-	});
+	let { data, form } = $props();
 
-	const isSameAccount = (val: z.infer<typeof createSchema>) =>
-		val.leftAccountId != val.rightAccountId;
+	// svelte-ignore non_reactive_update
+	let firstInputRef: HTMLInputElement;
+	let datePicker: ReturnType<typeof DateRangePicker>;
 
-	const createValidator = createSchema.refine(isSameAccount);
-	const updateValidator = createSchema.extend({ id: z.number() }).refine(isSameAccount);
-
-	const { data } = $props();
 	let transactions: Partial<{
 		id: number;
 		state: any;
@@ -55,15 +38,10 @@
 		amount: number | null;
 	}>[] = $state([]);
 	let errorMsg: string | null = $state(null);
-
 	let searchCond: { fromDate: string | null; toDate: string | null } = $state({
 		fromDate: data.fromDate,
 		toDate: data.toDate
 	});
-
-	// svelte-ignore non_reactive_update
-	let firstInputRef: HTMLInputElement;
-	let datePicker: ReturnType<typeof DateRangePicker>;
 
 	$effect(() => {
 		transactions = data.transactions.map((t) => ({
@@ -71,11 +49,14 @@
 			leftAccountId: `${t.leftAccountId}`,
 			rightAccountId: `${t.rightAccountId}`
 		}));
+		selected = -1;
+		mode = null;
 	});
 
-	async function create() {}
-
-	async function update() {}
+	$effect(() => {
+		errorMsg = form?.error ?? null;
+		lastAddedDate = form?.lastAddedDate ?? null;
+	});
 
 	function getAccountText(
 		accounts: { id: number; name: string | null; typeId: number }[],
@@ -97,32 +78,15 @@
 
 	function handleSearchClick() {
 		if (datePicker.getValid()) {
-			goto(`/transaction?fromDate=${searchCond.fromDate}&toDate=${searchCond.toDate}`);
+			const query = {
+				fromDate: searchCond.fromDate!,
+				toDate: searchCond.toDate!,
+				keyword
+			};
+
+			goto(`/transaction?${new URLSearchParams(query)}`);
 		} else {
 			alert('Check search condition.');
-		}
-	}
-
-	function handleKeyUp(e: KeyboardEvent) {
-		if (e.key === 'Enter') {
-			handleSaveClick();
-		}
-	}
-
-	async function handleSaveClick() {
-		try {
-			if (mode === 'ADD') {
-				await create();
-			} else {
-				await update();
-			}
-			invalidateAll();
-		} catch (e) {
-			if (e instanceof ZodError) {
-				errorMsg = e.errors[0].message;
-			} else {
-				errorMsg = `${e}`;
-			}
 		}
 	}
 
@@ -153,8 +117,11 @@
 
 	// ---------------- NEW
 	let selected = $state(-1);
+	let willDelete = $state(0);
 	let mode = $state<null | 'ADD' | 'EDIT'>(null);
 	let lastAddedDate: string | null = $state(null);
+	let keyword = $state('');
+	let deleteForm: HTMLFormElement;
 
 	function handleEditClick(id: number) {
 		selected = id;
@@ -162,8 +129,6 @@
 	}
 
 	function handleCancelClick() {
-		selected = -1;
-		mode = null;
 		invalidateAll();
 	}
 
@@ -182,6 +147,13 @@
 		}
 		tick().then(() => firstInputRef?.focus());
 	}
+
+	function handleDeleteClick(id: number) {
+		willDelete = id;
+		if (confirm('Are you sure?')) {
+			tick().then(() => deleteForm.requestSubmit());
+		}
+	}
 </script>
 
 <PageTitle>Transactions</PageTitle>
@@ -194,6 +166,7 @@
 			bind:this={datePicker}
 		/>
 		<button onclick={() => handleMonthMoveClick(+1)}><ChevronRight /></button>
+		<Input bind:value={keyword} placeholder="Search keyword" />
 		<Button onclick={handleSearchClick}>SEARCH</Button>
 		<MonthButtons
 			bind:fromDate={searchCond.fromDate}
@@ -205,7 +178,7 @@
 		<Button onclick={handleAddClick}>CREATE</Button>
 	</div>
 </div>
-<div class=" mt-4 max-h-[calc(100vh-250px)] overflow-auto">
+<div class="mt-4 max-h-[calc(100vh-250px)] overflow-auto rounded-md border">
 	<Table narrow>
 		<TableHeader>
 			<TableRow>
@@ -226,31 +199,44 @@
 							<input
 								type="date"
 								class="h-7 w-full border px-2"
+								name="tdate"
+								form="form"
 								bind:value={transaction.tdate}
 								bind:this={firstInputRef}
 							/>
 						</TableCell>
 						<TableCell>
-							<input type="text" class="h-7 w-full border px-2" bind:value={transaction.seq} />
+							<input
+								type="text"
+								class="h-7 w-full border px-2"
+								name="seq"
+								form="form"
+								bind:value={transaction.seq}
+							/>
 						</TableCell>
 						<TableCell>
 							<input
 								type="text"
 								class="h-7 w-full border px-2"
+								name="title"
+								form="form"
 								bind:value={transaction.title}
-								onkeyup={handleKeyUp}
 								onblur={handleTitleBlur}
 							/>
 						</TableCell>
 						<TableCell>
 							<GridSelect
 								items={data.leftAccounts.map((a) => ({ value: `${a.id}`, label: a.name! }))}
+								name="leftAccountId"
+								form="form"
 								bind:value={transaction.leftAccountId}
 							/>
 						</TableCell>
 						<TableCell>
 							<GridSelect
 								items={data.rightAccounts.map((a) => ({ value: `${a.id}`, label: a.name! }))}
+								name="rightAccountId"
+								form="form"
 								bind:value={transaction.rightAccountId}
 							/>
 						</TableCell>
@@ -258,19 +244,24 @@
 							<input
 								type="text"
 								class="h-7 w-full border px-1"
+								name="amount"
+								form="form"
 								bind:value={transaction.amount}
-								onkeyup={(e) => handleKeyUp(e, transaction.state!)}
 							/>
 						</TableCell>
 						<TableCell class="align-middle">
+							<input
+								type="hidden"
+								name="id"
+								form="form"
+								value={mode === 'EDIT' ? transaction.id : null}
+							/>
 							<div class="flex h-full w-full items-center justify-center gap-1">
-								<button
-									type="button"
-									class="rounded p-0.5 transition-colors hover:bg-slate-200"
-									onclick={() => handleSaveClick(transaction.state!)}
-								>
-									<Save class="h-4 w-4" />
-								</button>
+								<form class="contents" id="form" method="POST" action="?/post" use:enhance>
+									<button type="submit" class="rounded p-0.5 transition-colors hover:bg-slate-200">
+										<Save class="h-4 w-4" />
+									</button>
+								</form>
 								<button type="button" class="rounded p-0.5 transition-colors hover:bg-slate-200">
 									<Ban class="h-4 w-4" onclick={() => handleCancelClick()} />
 								</button>
@@ -294,6 +285,9 @@
 								<button type="button" onclick={() => handleEditClick(transaction.id!)}>
 									<Pencil class="h-4 w-4" />
 								</button>
+								<button type="button" onclick={() => handleDeleteClick(transaction.id!)}>
+									<Trash class="h-4 w-4" />
+								</button>
 							</div>
 						</TableCell>
 					</TableRow>
@@ -305,3 +299,6 @@
 {#if errorMsg}
 	<ErrorCard onclick={() => (errorMsg = null)}>{errorMsg}</ErrorCard>
 {/if}
+<form class="hidden" method="POST" action="?/delete" use:enhance bind:this={deleteForm}>
+	<input type="hidden" name="id" value={willDelete} />
+</form>

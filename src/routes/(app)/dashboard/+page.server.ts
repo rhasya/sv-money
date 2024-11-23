@@ -108,7 +108,7 @@ export async function load({ url }) {
 		.leftJoin(account, eq(sq.accountId, account.id))
 		.groupBy(sq.accountId, account.name, account.typeId);
 
-	// console.log(accounts);
+	console.log(accounts);
 
 	return {
 		year: yearInput,

@@ -1,14 +1,14 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
 	import { accountTypes } from '$lib/common/consts';
 	import { getCategoryName } from '$lib/common/utils';
+	import { ListGroup } from '$lib/components/ui/listgroup';
 	import Button from '@components/Button.svelte';
-	import ListGroup from '@components/ListGroup.svelte';
 	import PageTitle from '@components/PageTitle.svelte';
-	import AccountDialog from './AccountDialog.svelte';
 	import { Trash } from 'lucide-svelte';
-	import { enhance } from '$app/forms';
 	import { tick } from 'svelte';
 	import { fade } from 'svelte/transition';
+	import AccountDialog from './AccountDialog.svelte';
 
 	const { data, form } = $props();
 
@@ -64,7 +64,7 @@
 					tabindex={-1}
 				>
 					<button
-						class="transition-color grid w-full grid-cols-[4fr_3fr_0.4fr_0.6fr] items-center justify-between p-3 no-underline hover:bg-muted"
+						class="transition-color hover:bg-muted grid w-full grid-cols-[4fr_3fr_0.4fr_0.6fr] items-center justify-between p-3 no-underline"
 						onclick={() => handleUpdateClick(row)}
 					>
 						<span class="basis-[140px] text-left">{row.name}</span>
@@ -73,7 +73,7 @@
 					</button>
 					{#if row.id === hoverId}
 						<div
-							class="absolute bottom-0 right-2 top-0 flex items-center justify-center"
+							class="absolute top-0 right-2 bottom-0 flex items-center justify-center"
 							transition:fade={{ duration: 150 }}
 						>
 							<button

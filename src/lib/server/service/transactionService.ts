@@ -1,15 +1,37 @@
-import { asc, between, eq } from 'drizzle-orm';
+import { aliasedTable, and, asc, between, eq, getTableColumns, ilike, or } from 'drizzle-orm';
 import { db } from '../db';
-import { transaction } from '../db/schema-pg';
+import { account, transaction } from '../db/schema-pg';
 
-export async function getTransactions(fromDate: string | null, toDate: string | null) {
+export async function getTransactions(
+	fromDate: string,
+	toDate: string,
+	keyword: string | null = ''
+) {
 	if (!fromDate || !toDate) {
 		return await db.select().from(transaction);
 	}
+
+	const likeKeyword = `%${keyword}%`;
+	const la = aliasedTable(account, 'la');
+	const ra = aliasedTable(account, 'ra');
+
 	return await db
-		.select()
+		.select({
+			...getTableColumns(transaction)
+		})
 		.from(transaction)
-		.where(between(transaction.tdate, fromDate, toDate))
+		.leftJoin(la, eq(transaction.leftAccountId, la.id))
+		.leftJoin(ra, eq(transaction.rightAccountId, ra.id))
+		.where(
+			and(
+				between(transaction.tdate, fromDate, toDate),
+				or(
+					ilike(transaction.title, likeKeyword),
+					ilike(la.name, likeKeyword),
+					ilike(ra.name, likeKeyword)
+				)
+			)
+		)
 		.orderBy(asc(transaction.tdate), asc(transaction.seq), asc(transaction.id));
 }
 
@@ -29,4 +51,8 @@ export async function updateTransaction(t: typeof transaction.$inferInsert) {
 			amount: t.amount
 		})
 		.where(eq(transaction.id, t.id!));
+}
+
+export async function deleteTransaction(id: number) {
+	await db.delete(transaction).where(eq(transaction.id, id));
 }
