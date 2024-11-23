@@ -1,4 +1,4 @@
-import { date, integer, pgTable, real, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import { date, integer, pgTable, numeric, serial, text, timestamp } from 'drizzle-orm/pg-core';
 
 export const account = pgTable('account', {
 	id: serial('id').primaryKey(),
@@ -18,7 +18,7 @@ export const transaction = pgTable('transaction', {
 	rightAccountId: integer('right_account_id')
 		.notNull()
 		.references(() => account.id),
-	amount: real('amount').default(0),
+	amount: numeric('amount', { precision: 20, scale: 5 }).default('0'),
 	seq: integer('seq'),
 	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
 	modifiedAt: timestamp('modified_at', { withTimezone: true })
