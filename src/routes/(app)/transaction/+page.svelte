@@ -47,7 +47,8 @@
 		transactions = data.transactions.map((t) => ({
 			...t,
 			leftAccountId: `${t.leftAccountId}`,
-			rightAccountId: `${t.rightAccountId}`
+			rightAccountId: `${t.rightAccountId}`,
+			amount: parseInt(t.amount!)
 		}));
 		selected = -1;
 		mode = null;
