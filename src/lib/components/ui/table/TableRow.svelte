@@ -1,9 +1,16 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
+	import { cn } from '$lib/utils';
+	import type { HTMLAttributes } from 'svelte/elements';
 
-	const { children }: { children: Snippet } = $props();
+	const { children, class: className, ...props }: HTMLAttributes<HTMLTableRowElement> = $props();
 </script>
 
-<tr class="hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors">
+<tr
+	class={cn(
+		'hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors',
+		className
+	)}
+	{...props}
+>
 	{@render children?.()}
 </tr>
