@@ -26,5 +26,5 @@
 </script>
 
 {#each months as month}
-	<Button variant="secondary" w="4rem" onclick={handleClick.bind(null, month)}>{month}</Button>
+	<Button variant="secondary" onclick={handleClick.bind(null, month)}>{month}</Button>
 {/each}

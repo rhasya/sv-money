@@ -23,11 +23,11 @@
 		<table class="mt-2 table-fixed">
 			<thead>
 				<tr class="border-y">
-					<th>Account</th>
-					<th class="w-[180px]">Last month</th>
-					<th class="w-[180px]">Increase</th>
-					<th class="w-[180px]">Decrease</th>
-					<th class="w-[180px]">Balance</th>
+					<th class="px-2 py-2">Account</th>
+					<th class="w-[180px] px-2 py-2">Last month</th>
+					<th class="w-[180px] px-2 py-2">Increase</th>
+					<th class="w-[180px] px-2 py-2">Decrease</th>
+					<th class="w-[180px] px-2 py-2">Balance</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -38,11 +38,15 @@
 							'bg-orange-50': a.accountTypeId === 3
 						})}
 					>
-						<td class="text-center">{a.accountName}</td>
-						<td class="text-right">{Intl.NumberFormat().format(a.lastMonth)}</td>
-						<td class="text-right text-blue-500">{Intl.NumberFormat().format(a.increase)}</td>
-						<td class="text-right text-red-500">{Intl.NumberFormat().format(a.decrease)}</td>
-						<td class="text-right"
+						<td class="px-2 py-2 text-center">{a.accountName}</td>
+						<td class="px-2 py-2 text-right">{Intl.NumberFormat().format(a.lastMonth)}</td>
+						<td class="px-2 py-2 text-right text-blue-500"
+							>{Intl.NumberFormat().format(a.increase)}</td
+						>
+						<td class="px-2 py-2 text-right text-red-500"
+							>{Intl.NumberFormat().format(a.decrease)}</td
+						>
+						<td class="px-2 py-2 text-right"
 							>{Intl.NumberFormat().format(a.lastMonth + a.increase - a.decrease)}</td
 						>
 					</tr>
@@ -51,12 +55,3 @@
 		</table>
 	</div>
 </div>
-
-<style lang="postcss">
-	th {
-		@apply px-2 py-1;
-	}
-	td {
-		@apply px-2 py-1;
-	}
-</style>

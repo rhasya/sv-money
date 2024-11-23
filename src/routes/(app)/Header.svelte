@@ -1,18 +1,20 @@
-<header class="w-full shrink-0 bg-foreground px-8">
-	<div class="flex h-[60px] items-center justify-between">
-		<div class="flex items-center space-x-8">
-			<div class="font-logo text-3xl font-bold text-white">
+<header class="bg-primary w-full px-8">
+	<div class="flex h-15 shrink-0 items-center justify-between">
+		<div class="text-primary-foreground flex items-center space-x-8">
+			<div class="font-logo text-3xl font-bold">
 				<a href="/">SVMoney</a>
 			</div>
-			<menu class="flex items-center space-x-4 text-white">
-				<li><a href="/dashboard">Dashboard</a></li>
-				<li><a href="/account">Account</a></li>
-				<li><a href="/transaction">Transaction</a></li>
-				<li><a href="/showroom">Showroom</a></li>
-			</menu>
+			<nav>
+				<menu class="flex items-center space-x-4">
+					<li><a href="/dashboard">Dashboard</a></li>
+					<li><a href="/account">Account</a></li>
+					<li><a href="/transaction">Transaction</a></li>
+					<li><a href="/showroom">Showroom</a></li>
+				</menu>
+			</nav>
 		</div>
 		<div class="flex items-center justify-between">
-			<button class="btn-default btn glass">Login</button>
+			<button class="text-background">Login</button>
 		</div>
 	</div>
 </header>

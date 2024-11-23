@@ -17,12 +17,6 @@
 </script>
 
 <div>
-	<input type="date" class="date" bind:value={fromDate} /> -
-	<input type="date" class="date" bind:value={toDate} />
+	<input type="date" class="border-primary h-9 rounded border px-1" bind:value={fromDate} /> -
+	<input type="date" class="border-primary h-9 rounded border px-1" bind:value={toDate} />
 </div>
-
-<style lang="postcss">
-	.date {
-		@apply h-9 rounded border border-primary px-1;
-	}
-</style>

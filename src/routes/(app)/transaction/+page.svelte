@@ -5,7 +5,7 @@
 	import DateRangePicker from '@components/DateRangePicker.svelte';
 	import PageTitle from '@components/PageTitle.svelte';
 	import SimpleSelect from '@components/SimpleSelect.svelte';
-	import { addMonths, format, startOfMonth, endOfMonth } from 'date-fns';
+	import { addMonths, endOfMonth, format, startOfMonth } from 'date-fns';
 	import { Ban, ChevronLeft, ChevronRight, Pencil, Save } from 'lucide-svelte';
 	import { z, ZodError } from 'zod';
 	import ErrorCard from './ErrorCard.svelte';
@@ -202,10 +202,10 @@
 	</div>
 </div>
 <div class="max-h-[700px] overflow-auto">
-	<table class="mt-4 w-full table-fixed border-collapse">
+	<table>
 		<thead>
-			<tr class="border-y border-primary">
-				<th class="h-9 w-[120px]">Date</th>
+			<tr>
+				<th>Date</th>
 				<th class="w-[90px]">SEQ</th>
 				<th>Title</th>
 				<th class="w-[140px]">Left</th>
@@ -217,7 +217,7 @@
 		<tbody>
 			{#each transactions as transaction (transaction.id)}
 				{#if transaction.state === 'ADD' || transaction.state === 'EDIT'}
-					<tr class="border-y border-primary">
+					<tr class="border-primary border-y">
 						<td class="h-9 p-0.5"
 							><input
 								type="date"
@@ -264,12 +264,12 @@
 							<div class="flex h-full w-full items-center justify-center">
 								<button
 									type="button"
-									class="icon-button"
+									class="rounded p-0.5 transition-colors hover:bg-slate-200"
 									onclick={() => handleSaveClick(transaction.state!)}
 								>
 									<Save class="h-6 w-6" />
 								</button>
-								<button type="button" class="icon-button"
+								<button type="button" class="rounded p-0.5 transition-colors hover:bg-slate-200"
 									><Ban
 										class="h-6 w-6"
 										onclick={() => handleCancelClick(transaction.state!)}
@@ -279,17 +279,17 @@
 						</td>
 					</tr>
 				{:else}
-					<tr class="border-y border-primary">
-						<td class="normal-cell text-center">{format(transaction.tdate!, 'yyyy-MM-dd')}</td>
-						<td class="normal-cell">{transaction.seq}</td>
-						<td class="normal-cell">{transaction.title}</td>
-						<td class="normal-cell"
+					<tr class="border-primary border-y">
+						<td class="h-9 px-1 text-center">{format(transaction.tdate!, 'yyyy-MM-dd')}</td>
+						<td class="h-9 px-1">{transaction.seq}</td>
+						<td class="h-9 px-1">{transaction.title}</td>
+						<td class="h-9 px-1"
 							>{getAccountText(data.leftAccounts, transaction.leftAccountId!, true)}</td
 						>
-						<td class="normal-cell"
+						<td class="h-9 px-1"
 							>{getAccountText(data.rightAccounts, transaction.rightAccountId!, false)}</td
 						>
-						<td class="normal-cell text-right">{formatNumber(transaction.amount ?? 0)}</td>
+						<td class="h-9 px-1 text-right">{formatNumber(transaction.amount ?? 0)}</td>
 						<td>
 							<div class="flex h-full w-full justify-center">
 								<button type="button" onclick={() => handleEditClick(transaction.id!)}
@@ -303,7 +303,7 @@
 		</tbody>
 		{#if false}
 			<tfoot>
-				<tr class="text-primary-fg border-y border-primary bg-primary">
+				<tr class="text-primary-fg border-primary bg-primary border-y">
 					<th class="p-1 text-right" colspan={4}>SUM</th>
 					<th class="text-right">1000</th>
 					<th></th>
@@ -316,12 +316,3 @@
 	<ErrorCard onclick={() => (errorMsg = null)}>{errorMsg}</ErrorCard>
 {/if}
 <div class="h-9"></div>
-
-<style lang="postcss">
-	.icon-button {
-		@apply rounded p-0.5 transition-colors hover:bg-slate-200;
-	}
-	.normal-cell {
-		@apply h-9 px-1;
-	}
-</style>

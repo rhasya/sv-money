@@ -1,6 +1,5 @@
 <script lang="ts">
 	import '../app.css';
-	import { afterNavigate } from '$app/navigation';
 	let { children } = $props();
 </script>
 
