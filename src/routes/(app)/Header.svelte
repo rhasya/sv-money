@@ -9,6 +9,7 @@
 					<li><a href="/dashboard">Dashboard</a></li>
 					<li><a href="/account">Account</a></li>
 					<li><a href="/transaction">Transaction</a></li>
+					<li><a href="/summary">Summary</a></li>
 					<li><a href="/showroom">Showroom</a></li>
 				</menu>
 			</nav>
