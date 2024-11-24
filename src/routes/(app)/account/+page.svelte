@@ -3,8 +3,8 @@
 	import { accountTypes } from '$lib/common/consts';
 	import { getCategoryName } from '$lib/common/utils';
 	import { ListGroup } from '$lib/components/ui/listgroup';
-	import Button from '@components/Button.svelte';
-	import PageTitle from '@components/PageTitle.svelte';
+	import { Button } from '$lib/components/ui/button';
+	import PageTitle from '$lib/components/layouts/PageTitle.svelte';
 	import { Trash } from 'lucide-svelte';
 	import { tick } from 'svelte';
 	import { fade } from 'svelte/transition';

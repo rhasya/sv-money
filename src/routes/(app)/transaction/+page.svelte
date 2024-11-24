@@ -11,9 +11,9 @@
 		TableRow
 	} from '$lib/components/ui/table';
 	import { Input } from '$lib/components/ui/input';
-	import Button from '@components/Button.svelte';
+	import { Button } from '$lib/components/ui/button';
 	import DateRangePicker from '@components/DateRangePicker.svelte';
-	import PageTitle from '@components/PageTitle.svelte';
+	import PageTitle from '$lib/components/layouts/PageTitle.svelte';
 	import { addMonths, endOfMonth, format, startOfMonth } from 'date-fns';
 	import { Ban, ChevronLeft, ChevronRight, Pencil, Save, Trash } from 'lucide-svelte';
 	import { tick } from 'svelte';

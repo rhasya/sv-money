@@ -6,7 +6,7 @@
 		TableHead,
 		TableHeader,
 		TableRow
-	} from '@components/ui/table';
+	} from '$lib/components/ui/table';
 	import {
 		createTable,
 		type ColumnDefTemplate,
@@ -84,9 +84,9 @@
 				{/each}
 			{:else}
 				<TableRow>
-					<TableCell colspan={options.columns.length} class="h-24 text-center"
-						>No results.</TableCell
-					>
+					<TableCell colspan={options.columns.length} class="h-24 text-center">
+						No results.
+					</TableCell>
 				</TableRow>
 			{/if}
 		</TableBody>

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Button from '@components/Button.svelte';
+	import { Button } from '$lib/components/ui/button';
 	import { addMonths, endOfMonth, format, parse, startOfMonth } from 'date-fns';
 
 	/* ----- INIT ----- */

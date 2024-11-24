@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import PageTitle from '@components/PageTitle.svelte';
+	import PageTitle from '$lib/components/layouts/PageTitle.svelte';
 	import { cx } from 'class-variance-authority';
 	import { format } from 'date-fns';
 	import MonthSelector from './MonthSelector.svelte';
