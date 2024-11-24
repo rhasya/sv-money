@@ -338,6 +338,11 @@
 					</TableRow>
 				{/if}
 			{/each}
+			{#if transactions.length === 0}
+				<TableRow class="h-12">
+					<TableCell colspan={7} class="text-center font-medium">There is no data.</TableCell>
+				</TableRow>
+			{/if}
 		</TableBody>
 	</Table>
 </div>
