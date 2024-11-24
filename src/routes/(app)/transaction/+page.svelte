@@ -2,7 +2,6 @@
 	import { enhance } from '$app/forms';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { formatNumber } from '$lib/common/utils';
-	import MonthButtons from './MonthButtons.svelte';
 	import PageTitle from '$lib/components/layouts/PageTitle.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
@@ -14,18 +13,28 @@
 		TableHeader,
 		TableRow
 	} from '$lib/components/ui/table';
+	import { cn } from '$lib/utils';
 	import DateRangePicker from '@components/DateRangePicker.svelte';
 	import { addMonths, endOfMonth, format, startOfMonth } from 'date-fns';
 	import { Ban, ChevronLeft, ChevronRight, Pencil, Save, Trash } from 'lucide-svelte';
 	import { tick } from 'svelte';
 	import ErrorAlert from './ErrorAlert.svelte';
 	import GridSelect from './GridSelect.svelte';
+	import MonthButtons from './MonthButtons.svelte';
+	import { getLocalTimeZone, today } from '@internationalized/date';
 
 	let { data, form } = $props();
 
 	// svelte-ignore non_reactive_update
 	let firstInputRef: HTMLInputElement;
+	let deleteForm: HTMLFormElement;
 	let datePicker: ReturnType<typeof DateRangePicker>;
+
+	let selected = $state(-1);
+	let willDelete = $state(0);
+	let mode = $state<null | 'ADD' | 'EDIT'>(null);
+	let lastAddedDate: string | null = $state(null);
+	let keyword = $state('');
 
 	let transactions: Partial<{
 		id: number;
@@ -45,6 +54,22 @@
 			keyword: data.keyword
 		});
 
+	/* -------------- Effects -------------- */
+
+	$effect(() => {
+		const l = sessionStorage.getItem('lastAddedDate');
+		if (!l) {
+			sessionStorage.setItem('lastAddedDate', today(getLocalTimeZone()).toString());
+		}
+		if (lastAddedDate === null) {
+			lastAddedDate = sessionStorage.getItem('lastAddedDate');
+		}
+		if (form?.lastAddedDate) {
+			sessionStorage.setItem('lastAddedDate', form.lastAddedDate);
+			lastAddedDate = form?.lastAddedDate;
+		}
+	});
+
 	$effect(() => {
 		transactions = data.transactions.map((t) => ({
 			...t,
@@ -58,8 +83,20 @@
 
 	$effect(() => {
 		errorMsg = form?.error ?? null;
-		lastAddedDate = form?.lastAddedDate ?? null;
 	});
+
+	$effect(() => {
+		function handleKeyUp(e: KeyboardEvent) {
+			if (e.key === 'q' && e.ctrlKey) {
+				handleAddClick();
+			}
+		}
+
+		document.addEventListener('keyup', handleKeyUp);
+		return () => document.removeEventListener('keyup', handleKeyUp);
+	});
+
+	/* -------------- Functions -------------- */
 
 	function getAccountText(
 		accounts: { id: number; name: string | null; typeId: number }[],
@@ -78,6 +115,8 @@
 		}
 		return `${name}${plusMinus}`;
 	}
+
+	/* -------------- Handlers -------------- */
 
 	function handleSearchClick() {
 		if (datePicker.getValid()) {
@@ -118,15 +157,14 @@
 		}
 	}
 
-	// ---------------- NEW
-	let selected = $state(-1);
-	let willDelete = $state(0);
-	let mode = $state<null | 'ADD' | 'EDIT'>(null);
-	let lastAddedDate: string | null = $state(null);
-	let keyword = $state('');
-	let deleteForm: HTMLFormElement;
-
 	function handleEditClick(id: number) {
+		// remove added row
+		if (mode === 'ADD') {
+			const added = transactions.findIndex((t) => t.id === selected);
+			if (added) {
+				transactions.splice(added, 1);
+			}
+		}
 		selected = id;
 		mode = 'EDIT';
 	}
@@ -181,8 +219,8 @@
 		<Button onclick={handleAddClick}>CREATE</Button>
 	</div>
 </div>
-<div class="mt-4 max-h-[calc(100vh-300px)] overflow-auto rounded-md border">
-	<Table narrow>
+<div class="mt-4 max-h-[70vh] grow-0 overflow-auto rounded-md border">
+	<Table narrow class="table-fixed">
 		<TableHeader>
 			<TableRow>
 				<TableHead class="w-[140px]">Date</TableHead>
@@ -282,7 +320,11 @@
 						<TableCell>
 							{getAccountText(data.rightAccounts, transaction.rightAccountId!, false)}
 						</TableCell>
-						<TableCell class="text-right">{formatNumber(transaction.amount ?? 0)}</TableCell>
+						<TableCell
+							class={cn('text-right', (transaction.amount ?? 0) < 0 && 'text-destructive')}
+						>
+							{formatNumber(transaction.amount ?? 0)}
+						</TableCell>
 						<TableCell>
 							<div class="flex h-full w-full justify-center gap-2">
 								<button type="button" onclick={() => handleEditClick(transaction.id!)}>

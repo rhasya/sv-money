@@ -5,7 +5,7 @@ export function getCategoryName(category?: string | null) {
 }
 
 export function formatNumber(n: number | string | null) {
-	if (!n) return null;
+	if (n == null) return null;
 	if (typeof n === 'string') {
 		return Intl.NumberFormat().format(parseFloat(n));
 	} else {
