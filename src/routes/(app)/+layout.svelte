@@ -7,9 +7,9 @@
 	<title>SV-Money</title>
 </svelte:head>
 
-<div class="flex min-h-screen w-full flex-col">
+<div class="flex max-h-screen min-h-screen w-full flex-col overflow-hidden">
 	<Header />
-	<main class="flex grow flex-col px-8 py-6">
+	<main class="flex grow flex-col overflow-auto px-8 py-6">
 		{@render children()}
 	</main>
 </div>

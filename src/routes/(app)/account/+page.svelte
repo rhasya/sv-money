@@ -64,7 +64,7 @@
 					tabindex={-1}
 				>
 					<button
-						class="transition-color hover:bg-muted grid w-full grid-cols-[4fr_3fr_0.4fr_0.6fr] items-center justify-between p-3 no-underline"
+						class="hover:bg-muted grid w-full grid-cols-[4fr_3fr_0.4fr_0.6fr] items-center justify-between p-3 no-underline transition-colors"
 						onclick={() => handleUpdateClick(row)}
 					>
 						<span class="basis-[140px] text-left">{row.name}</span>
@@ -74,7 +74,7 @@
 					{#if row.id === hoverId}
 						<div
 							class="absolute top-0 right-2 bottom-0 flex items-center justify-center"
-							transition:fade={{ duration: 150 }}
+							in:fade={{ duration: 150 }}
 						>
 							<button
 								class="flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-white hover:bg-red-700"

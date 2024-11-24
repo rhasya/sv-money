@@ -10,7 +10,7 @@
 
 	let { year = $bindable(), month = $bindable() }: Props = $props();
 
-	const years = Array(11)
+	const years = Array(21)
 		.fill(0)
 		.map((_, idx) => ({
 			label: `${2020 + idx}`,
@@ -39,8 +39,10 @@
 			<Button
 				class="w-5"
 				variant={m === month ? 'default' : 'secondary'}
-				onclick={() => (month = m)}>{m}</Button
+				onclick={() => (month = m)}
 			>
+				{m}
+			</Button>
 		{/each}
 	</div>
 </div>

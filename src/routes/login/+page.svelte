@@ -1,10 +1,16 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import {
+		Card,
+		CardContent,
+		CardDescription,
+		CardFooter,
+		CardHeader,
+		CardTitle
+	} from '$lib/components/ui/card/index.js';
 	import { Button } from '@components/ui/button';
-	import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@components/ui/card';
-	import { Label } from '@components/ui/label';
 	import { Input } from '@components/ui/input';
-	import CardDescription from '@components/ui/card/_CardDescription.svelte';
+	import { Label } from '@components/ui/label';
 
 	const { form } = $props();
 </script>

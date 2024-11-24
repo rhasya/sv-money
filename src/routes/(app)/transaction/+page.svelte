@@ -17,7 +17,7 @@
 	import { addMonths, endOfMonth, format, startOfMonth } from 'date-fns';
 	import { Ban, ChevronLeft, ChevronRight, Pencil, Save, Trash } from 'lucide-svelte';
 	import { tick } from 'svelte';
-	import ErrorCard from './ErrorCard.svelte';
+	import ErrorAlert from './ErrorAlert.svelte';
 	import GridSelect from './GridSelect.svelte';
 	import MonthButtons from './MonthButtons.svelte';
 
@@ -38,10 +38,12 @@
 		amount: number | null;
 	}>[] = $state([]);
 	let errorMsg: string | null = $state(null);
-	let searchCond: { fromDate: string | null; toDate: string | null } = $state({
-		fromDate: data.fromDate,
-		toDate: data.toDate
-	});
+	let searchCond: { fromDate: string | null; toDate: string | null; keyword: string | null } =
+		$state({
+			fromDate: data.fromDate,
+			toDate: data.toDate,
+			keyword: data.keyword
+		});
 
 	$effect(() => {
 		transactions = data.transactions.map((t) => ({
@@ -179,7 +181,7 @@
 		<Button onclick={handleAddClick}>CREATE</Button>
 	</div>
 </div>
-<div class="mt-4 max-h-[calc(100vh-250px)] overflow-auto rounded-md border">
+<div class="mt-4 max-h-[calc(100vh-300px)] overflow-auto rounded-md border">
 	<Table narrow>
 		<TableHeader>
 			<TableRow>
@@ -282,7 +284,7 @@
 						</TableCell>
 						<TableCell class="text-right">{formatNumber(transaction.amount ?? 0)}</TableCell>
 						<TableCell>
-							<div class="flex h-full w-full justify-center">
+							<div class="flex h-full w-full justify-center gap-2">
 								<button type="button" onclick={() => handleEditClick(transaction.id!)}>
 									<Pencil class="h-4 w-4" />
 								</button>
@@ -298,7 +300,7 @@
 	</Table>
 </div>
 {#if errorMsg}
-	<ErrorCard onclick={() => (errorMsg = null)}>{errorMsg}</ErrorCard>
+	<ErrorAlert onclick={() => (errorMsg = null)}>{errorMsg}</ErrorAlert>
 {/if}
 <form class="hidden" method="POST" action="?/delete" use:enhance bind:this={deleteForm}>
 	<input type="hidden" name="id" value={willDelete} />

@@ -22,10 +22,7 @@ const schema = z.object({
 	title: z.string().min(1).max(100),
 	leftAccountId: z.coerce.number(),
 	rightAccountId: z.coerce.number(),
-	amount: z
-		.string()
-		.transform((arg) => arg.replaceAll(',', ''))
-		.pipe(z.coerce.number())
+	amount: z.string().transform((arg) => arg.replaceAll(',', ''))
 });
 
 export async function load({ url }) {
@@ -48,7 +45,7 @@ export async function load({ url }) {
 	const leftAccounts = accounts.filter((a) => [1, 2, 3, 5].includes(a.typeId));
 	const rightAccounts = accounts.filter((a) => [1, 2, 3, 4].includes(a.typeId));
 
-	return { transactions: tWithState, leftAccounts, rightAccounts, fromDate, toDate };
+	return { transactions: tWithState, leftAccounts, rightAccounts, fromDate, toDate, keyword };
 }
 
 export const actions = {

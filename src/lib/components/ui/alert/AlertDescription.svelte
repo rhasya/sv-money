@@ -4,4 +4,6 @@
 	const { children }: { children?: Snippet } = $props();
 </script>
 
-{@render children?.()}
+<div class="text-sm [&_p]:leading-relaxed">
+	{@render children?.()}
+</div>
