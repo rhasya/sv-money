@@ -29,8 +29,8 @@
 		<Table class="">
 			<TableHeader>
 				<TableRow>
-					<TableHead class="text-center">수입</TableHead>
-					<TableHead class="text-center">금액</TableHead>
+					<TableHead class="text-center">Income</TableHead>
+					<TableHead class="text-center">Amount</TableHead>
 				</TableRow>
 			</TableHeader>
 			<TableBody>
@@ -47,8 +47,8 @@
 		<Table>
 			<TableHeader>
 				<TableRow>
-					<TableHead class="text-center">지출</TableHead>
-					<TableHead class="text-center">금액</TableHead>
+					<TableHead class="text-center">Expense</TableHead>
+					<TableHead class="text-center">Amount</TableHead>
 				</TableRow>
 			</TableHeader>
 			<TableBody>

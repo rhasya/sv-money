@@ -1,5 +1,5 @@
 import { CalendarDate, endOfMonth } from '@internationalized/date';
-import { and, asc, between, eq, sum } from 'drizzle-orm';
+import { and, asc, between, eq, sql } from 'drizzle-orm';
 import { db } from '../db';
 import { account, transaction } from '../db/schema-pg';
 
@@ -12,11 +12,17 @@ export async function getMonthSummary(year: number, month: number) {
 			id: account.id,
 			name: account.name,
 			seq: account.seq,
-			amount: sum(transaction.amount)
+			amount: sql<string>`coalesce(sum(${transaction.amount}),0)`
 		})
-		.from(transaction)
-		.innerJoin(account, eq(account.id, transaction.rightAccountId))
-		.where(and(eq(account.typeId, 4), between(transaction.tdate, start.toString(), end.toString())))
+		.from(account)
+		.leftJoin(
+			transaction,
+			and(
+				eq(transaction.rightAccountId, account.id),
+				between(transaction.tdate, start.toString(), end.toString())
+			)
+		)
+		.where(eq(account.typeId, 4))
 		.groupBy(account.id, account.name, account.seq)
 		.orderBy(asc(account.seq), asc(account.id));
 
@@ -25,11 +31,17 @@ export async function getMonthSummary(year: number, month: number) {
 			id: account.id,
 			name: account.name,
 			seq: account.seq,
-			amount: sum(transaction.amount)
+			amount: sql<string>`coalesce(sum(${transaction.amount}),0)`
 		})
-		.from(transaction)
-		.innerJoin(account, eq(account.id, transaction.leftAccountId))
-		.where(and(eq(account.typeId, 5), between(transaction.tdate, start.toString(), end.toString())))
+		.from(account)
+		.leftJoin(
+			transaction,
+			and(
+				eq(transaction.leftAccountId, account.id),
+				between(transaction.tdate, start.toString(), end.toString())
+			)
+		)
+		.where(eq(account.typeId, 5))
 		.groupBy(account.id, account.name, account.seq)
 		.orderBy(asc(account.seq), asc(account.id));
 
