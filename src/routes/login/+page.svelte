@@ -7,8 +7,9 @@
 		CardFooter,
 		CardHeader,
 		CardTitle
-	} from '$lib/components/ui/card/index.js';
-	import { Button } from '@components/ui/button';
+	} from '$lib/components/ui/card';
+	import { Button } from '$lib/components/ui/button';
+	import { Alert } from '$lib/components/ui/alert';
 	import { Input } from '@components/ui/input';
 	import { Label } from '@components/ui/label';
 
@@ -25,11 +26,11 @@
 			<CardContent class="flex w-[360px] flex-col space-y-4">
 				<div class="flex flex-col space-y-1">
 					<Label for="username">Username</Label>
-					<Input id="username" />
+					<Input id="username" name="username" />
 				</div>
 				<div class="flex flex-col space-y-1">
 					<Label for="password">Password</Label>
-					<Input type="password" id="password" />
+					<Input type="password" id="password" name="password" />
 				</div>
 			</CardContent>
 			<CardFooter>
@@ -37,8 +38,10 @@
 			</CardFooter>
 		</Card>
 	</form>
-	<div class="text-error mt-2 h-4 w-full max-w-md">{form?.errorMessage}</div>
-</main>
 
-<style lang="postcss">
-</style>
+	<div class="mt-4 h-6 w-[364px]">
+		{#if form?.errorMessage}
+			<Alert variant="destructive">{form?.errorMessage}</Alert>
+		{/if}
+	</div>
+</main>

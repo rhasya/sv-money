@@ -15,7 +15,9 @@
 			</nav>
 		</div>
 		<div class="flex items-center justify-between">
-			<button class="text-background">Login</button>
+			<form method="POST" action="/?/logout">
+				<button class="text-background">Logout</button>
+			</form>
 		</div>
 	</div>
 </header>
