@@ -3,7 +3,7 @@
 	import { Check, ChevronDown, ChevronsUpDown, ChevronUp } from 'lucide-svelte';
 
 	let {
-		value = $bindable(''),
+		value = $bindable(),
 		items,
 		name
 	}: {
@@ -21,7 +21,6 @@
 			open = true;
 		}
 	});
-	$inspect(open);
 
 	function handleInput(e: Event & { currentTarget: EventTarget & HTMLInputElement }) {
 		searchValue = e.currentTarget.value;
