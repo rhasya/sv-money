@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Input from '@components/ui/input/_Input.svelte';
 	import { Combobox } from 'bits-ui';
 	import { Check, ChevronDown, ChevronsUpDown, ChevronUp } from 'lucide-svelte';
 
@@ -14,6 +15,7 @@
 
 	let searchValue = $state('');
 	let open = $state(false);
+	let defaultValue = $state('');
 	const filteredItems = $derived(items.filter((i) => i.label.includes(searchValue)));
 
 	$effect(() => {
@@ -22,7 +24,14 @@
 		}
 	});
 
-	function handleInput(e: Event & { currentTarget: EventTarget & HTMLInputElement }) {
+	$effect(() => {
+		const obj = items.find(({ value: v }) => v === value);
+		if (obj) {
+			defaultValue = obj.label;
+		}
+	});
+
+	function handleInput(e: Event & { currentTarget: HTMLInputElement }) {
 		searchValue = e.currentTarget.value;
 	}
 </script>
@@ -36,13 +45,20 @@
 		if (!o) searchValue = '';
 	}}
 	{name}
+	{items}
 >
 	<div class="relative">
-		<Combobox.Input
-			oninput={handleInput}
-			class="border-input flex h-7 w-full items-center justify-between border px-2"
-		/>
-		<Combobox.Trigger tabindex={-1} class="absolute top-0 right-2 bottom-0 align-middle">
+		<Combobox.Input>
+			{#snippet child({ props })}
+				<input
+					{...props}
+					oninput={handleInput}
+					bind:value={defaultValue}
+					class="border-input flex h-7 w-full items-center justify-between border px-2"
+				/>
+			{/snippet}
+		</Combobox.Input>
+		<Combobox.Trigger tabindex={-1} class="absolute top-0 right-2 bottom-0 z-1 align-middle">
 			<ChevronsUpDown class="h-4 w-4" />
 		</Combobox.Trigger>
 	</div>
