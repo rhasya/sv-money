@@ -2,6 +2,7 @@ import { db } from '$lib/server/db/index.js';
 import { account, transaction } from '$lib/server/db/schema-pg.js';
 import { redirect } from '@sveltejs/kit';
 import { endOfMonth, format } from 'date-fns';
+import { asc } from 'drizzle-orm';
 import { and, between, eq, inArray, lt, sql } from 'drizzle-orm';
 import { z } from 'zod';
 
@@ -100,14 +101,15 @@ export async function load({ url }) {
 			accountId: sq.accountId,
 			accountName: account.name,
 			accountTypeId: account.typeId,
+			accountSeq: account.seq,
 			lastMonth: sql`sum(${sq.lastIncrease}) + sum(${sq.lastDecrease})`.mapWith(Number),
 			increase: sql`sum(${sq.increase})`.mapWith(Number),
 			decrease: sql`sum(${sq.decrease})`.mapWith(Number)
 		})
 		.from(sq)
 		.leftJoin(account, eq(sq.accountId, account.id))
-		.groupBy(sq.accountId, account.name, account.typeId);
-
+		.groupBy(sq.accountId, account.name, account.typeId, account.seq)
+		.orderBy(asc(account.typeId), asc(account.seq), asc(sq.accountId));
 	// console.log(accounts);
 
 	return {
