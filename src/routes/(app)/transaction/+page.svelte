@@ -143,7 +143,9 @@
 
 	async function handleTitleBlur(e: FocusEvent & { currentTarget: Element & HTMLInputElement }) {
 		if (mode === 'ADD') {
-			const res = await fetch(encodeURI(`/api/transaction?title=${e.currentTarget.value}`));
+			const res = await fetch(
+				encodeURI(`/api/transaction?title=${encodeURIComponent(e.currentTarget.value)}`)
+			);
 			if (res.ok) {
 				const { result } = await res.json();
 				const target = transactions.find(({ id }) => id === selected);

@@ -6,7 +6,10 @@ import { z } from 'zod';
 
 export async function GET({ request }) {
 	const { searchParams } = new URL(request.url);
-	const { data: title } = z.string().safeParse(searchParams.get('title'));
+	const { data: title } = z
+		.string()
+		.transform((arg) => decodeURIComponent(arg))
+		.safeParse(searchParams.get('title'));
 
 	if (title) {
 		const result = await db
