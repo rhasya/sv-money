@@ -3,7 +3,7 @@
 	import { Check, ChevronDown, ChevronsUpDown, ChevronUp } from 'lucide-svelte';
 
 	let {
-		value = $bindable(),
+		value = $bindable(''),
 		items,
 		name
 	}: {
@@ -13,7 +13,15 @@
 	} = $props();
 
 	let searchValue = $state('');
+	let open = $state(false);
 	const filteredItems = $derived(items.filter((i) => i.label.includes(searchValue)));
+
+	$effect(() => {
+		if (searchValue) {
+			open = true;
+		}
+	});
+	$inspect(open);
 
 	function handleInput(e: Event & { currentTarget: EventTarget & HTMLInputElement }) {
 		searchValue = e.currentTarget.value;
@@ -24,6 +32,7 @@
 	type="single"
 	allowDeselect={false}
 	bind:value
+	bind:open
 	onOpenChange={(o) => {
 		if (!o) searchValue = '';
 	}}
