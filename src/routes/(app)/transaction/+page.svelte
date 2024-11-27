@@ -22,6 +22,7 @@
 	import GridSelect from './GridSelect.svelte';
 	import MonthButtons from './MonthButtons.svelte';
 	import { getLocalTimeZone, today } from '@internationalized/date';
+	import GridCombobox from './GridCombobox.svelte';
 
 	let { data, form } = $props();
 
@@ -268,18 +269,14 @@
 							/>
 						</TableCell>
 						<TableCell>
-							<GridSelect
+							<GridCombobox
 								items={data.leftAccounts.map((a) => ({ value: `${a.id}`, label: a.name! }))}
-								name="leftAccountId"
-								form="form"
 								bind:value={transaction.leftAccountId}
 							/>
 						</TableCell>
 						<TableCell>
-							<GridSelect
+							<GridCombobox
 								items={data.rightAccounts.map((a) => ({ value: `${a.id}`, label: a.name! }))}
-								name="rightAccountId"
-								form="form"
 								bind:value={transaction.rightAccountId}
 							/>
 						</TableCell>
@@ -289,18 +286,16 @@
 								class="h-7 w-full border px-1"
 								name="amount"
 								form="form"
+								autocomplete="off"
 								bind:value={transaction.amount}
 							/>
 						</TableCell>
 						<TableCell class="align-middle">
-							<input
-								type="hidden"
-								name="id"
-								form="form"
-								value={mode === 'EDIT' ? transaction.id : null}
-							/>
 							<div class="flex h-full w-full items-center justify-center gap-1">
 								<form class="contents" id="form" method="POST" action="?/post" use:enhance>
+									<input type="hidden" name="id" value={mode === 'EDIT' ? transaction.id : null} />
+									<input type="hidden" name="leftAccountId" value={transaction.leftAccountId} />
+									<input type="hidden" name="rightAccountId" value={transaction.rightAccountId} />
 									<button type="submit" class="rounded p-0.5 transition-colors hover:bg-slate-200">
 										<Save class="h-4 w-4" />
 									</button>

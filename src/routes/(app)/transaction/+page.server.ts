@@ -52,6 +52,7 @@ export const actions = {
 	post: async ({ request }): Promise<{ error?: string; lastAddedDate?: string }> => {
 		const formData = await request.formData();
 		const input = Object.fromEntries(formData);
+		console.log(input);
 
 		const { data: transaction, error } = schema.safeParse(input);
 		if (error) {
