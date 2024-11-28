@@ -8,11 +8,13 @@ export async function handle({ event, resolve }) {
 		// check token
 		if (!token) {
 			event.locals.user = null;
+			event.cookies.delete('token', { path: '/' });
 			redirect(303, '/login');
 		}
 		const user = await verifyToken(token);
 		if (!user) {
 			event.locals.user = null;
+			event.cookies.delete('token', { path: '/' });
 			redirect(303, '/login');
 		}
 		event.locals.user = user;

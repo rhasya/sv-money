@@ -18,10 +18,14 @@ export async function createToken(claim: Claim) {
 }
 
 export async function verifyToken(token: string) {
-	const { payload } = await jwtVerify<Claim>(token, secret, {
-		issuer: 'issuer',
-		audience: 'audience'
-	});
+	try {
+		const { payload } = await jwtVerify<Claim>(token, secret, {
+			issuer: 'issuer',
+			audience: 'audience'
+		});
 
-	return { username: payload.username };
+		return { username: payload.username };
+	} catch {
+		return null;
+	}
 }
